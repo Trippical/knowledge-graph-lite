@@ -7,8 +7,8 @@ disagree, the repo copy wins; update this file to match.
 
 The corpus lives as governed markdown (`library/`, `inbox/`) with an
 optional `kg_entities` / `kg_edges` mirror in your `<catalog>.<schema>`
-(see `publish_delta.py` — target is parameterized via `--target` or
-`KG_DELTA_TARGET`) so SQL and BI tools can sit on top. Markdown is the
+(see `layers/delta/publish_delta.py` — target is parameterized via
+`--target` or `KG_DELTA_TARGET`) so SQL and BI tools can sit on top. Markdown is the
 source of truth; the Delta tables are a generated projection.
 
 ## Write documentation — add one fact, cheaply
@@ -65,9 +65,9 @@ its inbox exceeds ~8 files or the oldest capture is >14 days old.
    owner; never merge content using unapproved predicates.
 5. `python validate.py` — zero errors, triage every warning.
 6. Reindex last: `python build_index.py`, commit INDEX.md + registry.tsv.
-7. Then mirror to your warehouse (optional): `python publish_delta.py
-   --execute --target <catalog.schema>` so the Delta mirror stays in sync
-   with what just landed in `library/`.
+7. Then mirror to your warehouse (optional): `python
+   layers/delta/publish_delta.py --execute --target <catalog.schema>` so
+   the Delta mirror stays in sync with what just landed in `library/`.
 8. PR: steady-state ≤ ~10 entities per merge decision; backfill waves
    exempt via the `backfill-wave` label, one PR per domain wave.
 

@@ -17,12 +17,14 @@ import argparse
 import json
 import os
 import subprocess
+import sys
 import time
 from pathlib import Path
 
-from kglib import load_docs, load_schema, split_relation
+ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT))
 
-ROOT = Path(__file__).resolve().parent
+from kglib import load_docs, load_schema, split_relation
 
 
 def ddl(prefix: str) -> dict:

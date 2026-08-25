@@ -25,9 +25,10 @@ import re
 import sys
 from pathlib import Path
 
-from kglib import STOP, load_docs, words
+ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT))
 
-ROOT = Path(__file__).resolve().parent
+from kglib import STOP, load_docs, words
 MAX_HOPS = 3
 MAX_TRIPLES = 8
 MAX_ENTITIES = 8

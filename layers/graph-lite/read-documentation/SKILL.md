@@ -5,7 +5,9 @@ description: Answer questions from the knowledge library — two-tier ranked sea
 
 # Read documentation
 
-1. `python search.py "<question>"` — ranked, capped at 15, total shown.
+1. `python layers/graph-lite/search.py "<question>"` — ranked, capped at
+   15, total shown. (This skill belongs to the graph-lite read layer; a
+   different layer ships its own read skill.)
 2. Trust tiers: `library/` hits are authoritative. Hits tagged
    `[UNVERIFIED — inbox]` are recent captures — usable, but cite with that
    caveat. If inbox contradicts library, answer from library and flag the

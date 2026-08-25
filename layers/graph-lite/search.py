@@ -19,9 +19,10 @@ import re
 import sys
 from pathlib import Path
 
-from kglib import STOP, load_docs, load_schema, split_relation, words
+ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT))
 
-ROOT = Path(__file__).resolve().parent
+from kglib import STOP, load_docs, load_schema, split_relation, words
 CAP = 15
 
 

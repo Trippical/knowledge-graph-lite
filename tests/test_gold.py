@@ -69,8 +69,8 @@ def test_gold_tables():
         check(f"gold[{domain}]: table parses (rows found)", bool(rows),
               f"{table} yielded no rows")
         for r in rows:
-            rec = run("recall.py", r["question"]).stdout
-            sea = run("search.py", r["question"]).stdout
+            rec = run("layers/graph-lite/recall.py", r["question"]).stdout
+            sea = run("layers/graph-lite/search.py", r["question"]).stdout
             ok = r["must"].lower() in rec.lower() or r["source"] in sea
             check(f"gold[{domain}#{r['n']}]: {r['question']}", ok,
                   f"'{r['must']}' not in recall out ({rec[:120]!r}) and "
@@ -97,7 +97,7 @@ def test_edges_tsv():
 # --- invariant: stubs get an automatic pointer description ----------------
 
 def test_recall_stub_description():
-    r = run("recall.py", "what is a refund?")
+    r = run("layers/graph-lite/recall.py", "what is a refund?")
     out = r.stdout
     check("recall: stubs get an automatic pointer description",
           "stub" in out.lower() and "refund-approvals.md" in out,
@@ -107,12 +107,12 @@ def test_recall_stub_description():
 # --- invariant: hook mode emits when seeded, stays silent otherwise -------
 
 def test_recall_hook_mode():
-    r = run("recall.py", "--hook",
+    r = run("layers/graph-lite/recall.py", "--hook",
             stdin=json.dumps({"prompt": "who approves a supplier payment?"}))
     check("recall --hook: emits context for a seeded prompt",
           r.returncode == 0 and "approved_by" in r.stdout,
           f"rc={r.returncode} out={r.stdout[:200]!r} err={r.stderr[:200]!r}")
-    r = run("recall.py", "--hook",
+    r = run("layers/graph-lite/recall.py", "--hook",
             stdin=json.dumps({"prompt": "completely unrelated smalltalk"}))
     check("recall --hook: silent success on an unseeded prompt",
           r.returncode == 0 and r.stdout.strip() == "",
