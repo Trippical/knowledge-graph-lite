@@ -36,8 +36,8 @@ One file per entity, `inbox/<domain>/<slug>.md`, that passes
 
 | Connector | Source | Skill |
 | --------- | ------ | ----- |
-| write-documentation | a human with one fact | connectors/write-documentation/ |
-| extract | docs, code, SQL, wikis (batch) | connectors/extract/ |
+| write-documentation | a human with one fact — THE PRIMITIVE all others drive | connectors/write-documentation/ |
+| extract | docs, code, SQL, wikis — batch driver: decompose, gate, one write-documentation run per surviving fact | connectors/extract/ |
 | thread-summarize | chat threads (planned) | — |
 
 Adding a source system = adding a connector. The core never changes.

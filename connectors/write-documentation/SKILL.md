@@ -8,6 +8,10 @@ description: Add new knowledge to the knowledge library inbox in correct format 
 Get information INTO the corpus cheaply. No dedupe, no linking, no
 comprehension — that's the synthesize skill's job, on its own cadence.
 
+This skill is the capture PRIMITIVE — the only thing that writes inbox
+files. Other connectors (extract, future thread-summarize) drive it in
+batch, one run per gated fact; its rules apply unchanged there.
+
 ## Steps
 
 1. Fill the template below — one file per entity, saved to

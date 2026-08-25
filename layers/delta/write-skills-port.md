@@ -29,25 +29,32 @@ Code sources: extract policy, ownership, why-facts only — classes and
 endpoints never get entities; a table or dataset people consume by name
 may get a REPORT entity documenting access, never values.
 
-## Extract — batch-distill sources into the corpus
+## Extract — batch driver over write-documentation
 
 Use for backfilling a domain from SQL, repos, wikis, or docs — not for a
-single fact someone just told you (that's write-documentation).
+single fact someone just told you (that's write-documentation directly).
+Extract owns no capture rules: it decomposes sources into candidate
+facts, gates them, and runs write-documentation once per survivor.
 
-1. Read SCHEMA.md first. Scope the sweep with the domain owner: paths,
-   domain, rough entity count. No open-ended crawling.
-2. Per source file, extract only what the source can't say by being read
-   (intent, why, ownership, grain, gotchas, questions answered). Never
-   copy code/column lists/enumerations — `source:` points at them.
-3. `python validate.py --dupe "<name>"` before creating any entity —
-   near-match → write into the existing entity's inbox file instead of
-   forking a name.
-4. One file per entity, `source:` mandatory, `source_rev:` mandatory for
-   code sources, `answers:` 3-5 lines. Every body claim traces to a
-   source line — no general-knowledge fill.
+1. Scope the sweep with the domain owner: paths, domain, rough entity
+   count. No open-ended crawling.
+2. Decompose each source into candidates (definitions, why-decisions,
+   ownership, grain, gotchas, derivations). Never copy code/column
+   lists/enumerations — `source:` points at them.
+3. THE GATE, in order: source defines a key term → capture; can't write
+   the `answers:` question first, as a person would ask it → drop;
+   borderline → keep only if ignorance causes wrong decisions, repeated
+   questions, or breakage; measure value → capture the derivation,
+   never the value.
+4. Per survivor: a write-documentation run, plus batch extras —
+   `--dupe` before any new name (near-match takes the existing
+   canonical name), `source_rev:` for code, verbatim quotes for
+   judgment-heavy facts, doc-vs-code conflicts recorded for synthesize.
 5. `python validate.py --format` on every new file.
 6. PR touching ONLY `inbox/`, `backfill-wave` label, one domain per PR,
-   ≤ ~25 files; body lists sources swept and duplicates skipped.
+   ≤ ~25 files; body lists sources swept, duplicates skipped, and the
+   gate log (captured vs dropped, each drop tagged with its failing
+   prong).
 
 ## Synthesize — promote inbox → library (the only path)
 
