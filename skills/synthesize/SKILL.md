@@ -40,13 +40,14 @@ The ONLY path from `inbox/` to `library/`. Partner with a human reviewer.
    - Steady-state: one merge DECISION per PR, ≤ ~10 entities.
    - Backfill waves are exempt from the cap (add the `backfill-wave` PR
      label): one PR per domain wave, gated on the domain's committed
-     gold-question suite (`library/<domain>/GOLD.md`, 10-20 owner-written
-     questions; write them BEFORE modeling the domain) — paste each
-     question's recall.py/search.py output in the PR body so pass/fail is
-     visible, not asserted. Every answer must cite its source line or it
-     doesn't count. Questions written before real users exist are marked
-     `primer` — a failing primer question is a modeling to-do, a failing
-     real-user question is a fire.
+     gold-question suite (`library/<domain>/GOLD.md` — a machine-parsed
+     table, 10-20 owner-written rows; write them BEFORE modeling the
+     domain, once — CI runs every row from then on). The gold runner
+     (`tests/test_gold.py`) executes each row against the active read
+     layer; paste its output in the PR body so pass/fail is visible, not
+     asserted. Rows written before real users exist are marked `primer` —
+     a failing primer row is a modeling to-do, a failing real-user row is
+     a fire.
 
 ## Rules
 

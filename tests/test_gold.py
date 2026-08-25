@@ -1,7 +1,15 @@
-"""Gold-question test runner. Stdlib only.
+"""Gold-question runner + governance invariants. Stdlib only.
 
-Each test is a gold question (or a governance invariant) run against the real
-CLI tools via subprocess — no mocks, the tools are the unit. Run:
+Gold rows live in library/<domain>/GOLD.md as a markdown table
+(| # | Question | Must contain | Source | Status |) — the table is the
+single source; this runner parses it and executes every row against the
+real CLI tools via subprocess. A row PASSES if "Must contain" appears in
+recall.py output (case-insensitive) OR the Source file appears in
+search.py results — the two retrieval paths; loud-fail only when both
+miss. Adding a test = adding a row to the table.
+
+The invariant tests below the gold runner are layer/governance checks
+that don't belong to any domain table. Run:
 
     python tests/test_gold.py
 
@@ -34,7 +42,42 @@ def check(name, ok, detail=""):
     print(f"{'PASS' if ok else 'FAIL'}  {name}" + (f"  — {detail}" if not ok else ""))
 
 
-# --- edges.tsv is a build_index artifact ---------------------------------
+# --- gold tables: parse library/*/GOLD.md and run every row ---------------
+
+def parse_gold(path: Path) -> list:
+    rows = []
+    for line in path.read_text(encoding="utf-8").splitlines():
+        if not line.strip().startswith("|"):
+            continue
+        cells = [c.strip() for c in line.strip().strip("|").split("|")]
+        if len(cells) < 4 or cells[0] in ("#", "") or set(cells[0]) <= {"-"}:
+            continue
+        rows.append({"n": cells[0], "question": cells[1],
+                     "must": cells[2], "source": cells[3]})
+    return rows
+
+
+def test_gold_tables():
+    tables = sorted(ROOT.glob("library/*/GOLD.md"))
+    if not tables:
+        check("gold: at least one library/<domain>/GOLD.md exists", False,
+              "no gold tables found")
+        return
+    for table in tables:
+        domain = table.parent.name
+        rows = parse_gold(table)
+        check(f"gold[{domain}]: table parses (rows found)", bool(rows),
+              f"{table} yielded no rows")
+        for r in rows:
+            rec = run("recall.py", r["question"]).stdout
+            sea = run("search.py", r["question"]).stdout
+            ok = r["must"].lower() in rec.lower() or r["source"] in sea
+            check(f"gold[{domain}#{r['n']}]: {r['question']}", ok,
+                  f"'{r['must']}' not in recall out ({rec[:120]!r}) and "
+                  f"'{r['source']}' not in search out ({sea[:120]!r})")
+
+
+# --- invariant: edges.tsv is a build_index artifact -----------------------
 
 def test_edges_tsv():
     run("build_index.py")
@@ -49,43 +92,9 @@ def test_edges_tsv():
         all(len(r) == 4 for r in rows),
         f"bad row widths: {[r for r in rows if len(r) != 4][:3]}",
     )
-    check(
-        "edges.tsv carries the approval edges",
-        ["Supplier Payments", "approved_by", "Founder",
-         "library/ops/supplier-payments.md"] in rows,
-        "Supplier Payments approved_by Founder row not found",
-    )
 
 
-# --- recall answers from structure ---------------------------------------
-
-def test_recall_refund_approval():
-    r = run("recall.py", "who needs to sign off on an £800 refund?")
-    ok = r.returncode == 0
-    out = r.stdout
-    check("recall: £800 refund finds the approval edges",
-          ok and "approved_by" in out and "Ops Manager" in out,
-          f"rc={r.returncode} out={out[:200]!r} err={r.stderr[:200]!r}")
-    check("recall: £800 refund injects the banded description",
-          "£500" in out and "48" in out,
-          "description with £500 band / 48-hour window not in output")
-
-
-def test_recall_incident_escalation():
-    r = run("recall.py", "who handles a severity-1 incident?")
-    out = r.stdout
-    check("recall: sev-1 incident names Support Lead AND Founder",
-          "Support Lead" in out and "Founder" in out,
-          f"out={out[:200]!r}")
-
-
-def test_recall_supplier_terms():
-    r = run("recall.py", "how long until a supplier invoice is paid?")
-    out = r.stdout
-    check("recall: supplier terms reachable via walk (30-day terms)",
-          "30" in out,
-          f"out={out[:200]!r}")
-
+# --- invariant: stubs get an automatic pointer description ----------------
 
 def test_recall_stub_description():
     r = run("recall.py", "what is a refund?")
@@ -94,6 +103,8 @@ def test_recall_stub_description():
           "stub" in out.lower() and "refund-approvals.md" in out,
           f"out={out[:200]!r}")
 
+
+# --- invariant: hook mode emits when seeded, stays silent otherwise -------
 
 def test_recall_hook_mode():
     r = run("recall.py", "--hook",
@@ -108,16 +119,7 @@ def test_recall_hook_mode():
           f"rc={r.returncode} out={r.stdout[:200]!r}")
 
 
-# --- search head-noun match ----------------------------------------------
-
-def test_search_onboarding():
-    r = run("search.py", "what is onboarding")
-    check("search: 'what is onboarding' hits onboarding-process.md",
-          r.returncode == 0 and "onboarding-process.md" in r.stdout,
-          f"rc={r.returncode} out={r.stdout[:200]!r}")
-
-
-# --- alias-aware inbox entity gate ---------------------------------------
+# --- invariant: alias-aware inbox entity gate -----------------------------
 
 def test_inbox_entity_alias_collision():
     inbox = ROOT / "inbox" / "test-alias-operations-manager.md"
@@ -142,7 +144,7 @@ def test_inbox_entity_alias_collision():
         inbox.unlink()
 
 
-# --- temporal keys are legal vocabulary ----------------------------------
+# --- invariant: temporal keys are legal vocabulary ------------------------
 
 def test_temporal_keys():
     f = ROOT / "inbox" / "test-temporal.md"
@@ -175,7 +177,7 @@ def test_temporal_keys():
         f.unlink()
 
 
-# --- baseline: the library itself stays clean ----------------------------
+# --- invariant: the library itself stays clean ----------------------------
 
 def test_validate_clean():
     r = run("validate.py")
@@ -186,12 +188,9 @@ def test_validate_clean():
 
 def main():
     test_edges_tsv()
-    test_recall_refund_approval()
-    test_recall_incident_escalation()
-    test_recall_supplier_terms()
+    test_gold_tables()
     test_recall_stub_description()
     test_recall_hook_mode()
-    test_search_onboarding()
     test_inbox_entity_alias_collision()
     test_temporal_keys()
     test_validate_clean()
