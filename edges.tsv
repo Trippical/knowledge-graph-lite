@@ -1,0 +1,14 @@
+Customer Support SOP	references	Refund Approvals	library/ops/customer-support-sop.md
+Customer Support SOP	escalates_to	Support Lead	library/ops/customer-support-sop.md
+Incident Response	escalates_to	Founder	library/ops/incident-response.md
+Incident Response	related	Support Lead	library/ops/incident-response.md
+Onboarding Process	references	Tooling Inventory	library/ops/onboarding-process.md
+Onboarding Process	related	Ops Manager	library/ops/onboarding-process.md
+Ops Manager	related	Onboarding Process	library/ops/ops-manager.md
+Refund Approvals	approved_by	Ops Manager	library/ops/refund-approvals.md
+Refund Approvals	related	Customer Support SOP	library/ops/refund-approvals.md
+Refund Approvals	related	Refund	library/ops/refund-approvals.md
+Supplier Payments	approved_by	Founder	library/ops/supplier-payments.md
+Supplier Payments	requires	Tooling Inventory	library/ops/supplier-payments.md
+Glossary	references	Refund	library/shared/glossary.md
+Glossary	references	Incident Response	library/shared/glossary.md

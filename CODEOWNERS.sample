@@ -1,0 +1,8 @@
+# Copy into the repo's CODEOWNERS; replace <libdir> and team handles.
+# SCHEMA.md has ONE named owner — the closed vocabulary is governed.
+/<libdir>/SCHEMA.md              @schema-owner
+/<libdir>/library/ops/           @team-ops
+/<libdir>/library/clients/       @team-clients
+/<libdir>/library/code/          @team-platform
+/<libdir>/library/shared/        @schema-owner
+# inbox/ is intentionally unlisted: write-documentation PRs auto-merge on green format lint.
