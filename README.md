@@ -28,6 +28,7 @@ Loud-fail only when BOTH miss.
     library/<domain>/ canonical tier — validated, graph-complete, authoritative
     library/<domain>/GOLD.md  committed gold-question suite (primer vs real)
     inbox/<domain>/   staging tier — lightweight captures awaiting synthesis
+                      (inbox/ops/ holds one worked sample capture)
     skills/           write-documentation, extract, synthesize, read-documentation (SKILL.md each)
     kglib.py          shared parser
     validate.py       deterministic lint (CI gate)
