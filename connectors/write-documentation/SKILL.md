@@ -38,7 +38,7 @@ aliases: # optional — other names people use
 related: <Entity, Entity> # optional — canonical names, no verb
 answers: # optional, 3-5 — questions this settles, as people ask them
   - <question>
-source: <path or URL — required; verbal/chat fact: slack://<channel>/<YYYY-MM-DD>-<who>>
+source: <path or URL — required; verbal/chat fact: slack://<channel>/<YYYY-MM-DD>-<who>; several sources: YAML list ("- " entries under one source: key)>
 updated: <YYYY-MM-DD>
 ---
 

@@ -29,8 +29,10 @@ The ONLY path from `inbox/` to `library/`. Partner with a human reviewer.
    - noise (not a real durable thing) → drop it;
    - genuinely new → create the stub, noting the human confirmation
      in the PR body.
-4. Vocabulary: collect `proposed_predicate:` lines into a separate SCHEMA.md
-   PR for the schema owner. Never merge content using unapproved predicates.
+4. Vocabulary: collect `proposed_predicate:` and `proposed_type:` lines into
+   a separate SCHEMA.md PR for the schema owner. Never merge content using
+   unapproved predicates; a file with `proposed_type:` merges under its
+   closest existing type and is retyped when the proposal is approved.
 5. Renames and removals: follow README § Renames and removals
    (grep-migration, old name becomes alias, tombstone + superseded_by).
 6. `python validate.py` — zero errors required; triage every warning.

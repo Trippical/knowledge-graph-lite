@@ -28,7 +28,8 @@ One file per entity, `inbox/<domain>/<slug>.md`, that passes
 ## What a connector never does
 
 - Write to `library/` — the gate is the only door
-- Invent vocabulary — unknown verb? body prose + `proposed_predicate:`
+- Invent vocabulary — unknown verb? body prose + `proposed_predicate:`;
+  missing type? closest existing type + `proposed_type:`
 - Dedupe, canonicalize, or link with predicated `relations:` — judgment
   is the gate's job; connectors capture
 

@@ -17,11 +17,12 @@ in body prose plus a `proposed_predicate:` header line (the governance queue).
 | related            | no         | comma-separated canonical entity names — a plain link, no verb; anyone writes these |
 | relations          | librarian  | "Subject predicate Object" — synthesize adds these where the verb matters           |
 | answers            | no         | 3-5 max, canonical names only                                                       |
-| source             | inbox: yes | provenance path or URL, one per line. When synthesize merges facts from several captures, keep one source line per capture so "says who?" stays answerable |
+| source             | inbox: yes | provenance path or URL — multiple sources are welcome and use YAML list form (`- ` entries under a single `source:` key, never repeated keys). When synthesize merges facts from several captures, keep one list entry per source so "says who?" stays answerable |
 | valid_from         | no         | ISO date — when a time-bounded fact starts holding (delegation window, decision)    |
 | valid_to           | no         | ISO date — when it stops. Supersede, never delete; expired facts stay for history   |
 | source_rev         | extracted  | commit SHA or doc revision at extraction                                            |
 | proposed_predicate | no         | vocabulary proposal for the schema owner                                            |
+| proposed_type      | no         | entity-type proposal for the schema owner; the file still carries the CLOSEST existing type so validation passes |
 | updated            | yes        | ISO date                                                                            |
 
 ## Entity types

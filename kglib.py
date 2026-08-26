@@ -14,6 +14,7 @@ SCALAR_KEYS = (
     "valid_to",
     "source_rev",
     "proposed_predicate",
+    "proposed_type",
 )
 KNOWN_KEYS = set(LIST_KEYS) | set(SCALAR_KEYS)
 STOP = {

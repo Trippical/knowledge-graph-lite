@@ -14,9 +14,16 @@ sole path to `library/`.
 ## Steps
 
 1. Scope the sweep with the domain owner FIRST: which paths/docs, which
-   domain, roughly how many entities. No open-ended crawling.
+   domain, roughly how many entities. No open-ended crawling. Owner not
+   available (autonomous/crawl run)? Self-scope conservatively — curated
+   docs only, never generated artifacts or logs — and open the PR body
+   with the chosen scope marked UNCONFIRMED, for review alongside the
+   gate log.
 2. Read SCHEMA.md and the write-documentation skill — they define the
-   capture format. Never invent vocabulary.
+   capture format. Never invent vocabulary. A fact whose natural type
+   is missing from the closed list gets the CLOSEST existing type plus
+   a `proposed_type:` header line — the schema owner's queue, same as
+   `proposed_predicate:`.
 3. DECOMPOSE each source into candidate facts: term definitions,
    why-decisions, ownership, grain, gotchas, access/derivation info.
    Never copy code, column lists, or enumerations — `source:` points at
