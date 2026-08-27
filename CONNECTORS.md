@@ -19,8 +19,8 @@ One file per entity, `inbox/<domain>/<slug>.md`, that passes
 - `entity:` — canonical name (check registry.tsv; an existing name means
   the facts MERGE there, never fork)
 - `type:` — from SCHEMA.md's closed list, never invented
-- `source:` — provenance path or URL, always; `source_rev:` when the
-  source is code
+- `provenance:` — where the facts came from (path or URL), always;
+  `provenance_rev:` when the source is code
 - `answers:` — the questions this capture settles, as people ask them
 - body — why-facts, ownership, gotchas; every claim traceable to the
   source; never copied enumerations, column lists, or measure values

@@ -17,10 +17,11 @@ in body prose plus a `proposed_predicate:` header line (the governance queue).
 | related            | no         | comma-separated canonical entity names — a plain link, no verb; anyone writes these |
 | relations          | librarian  | "Subject predicate Object" — synthesize adds these where the verb matters           |
 | answers            | no         | 3-5 max, canonical names only                                                       |
-| source             | inbox: yes | provenance path or URL — multiple sources are welcome and use YAML list form (`- ` entries under a single `source:` key, never repeated keys). When synthesize merges facts from several captures, keep one list entry per source so "says who?" stays answerable |
+| provenance         | inbox: yes | where the facts came from — path, URL, or URI (`slack://<channel>/<YYYY-MM-DD>-<who>` for verbal/chat facts; `uc://catalog.schema.table` when a fact was learned by reading a warehouse table). Multiple sources are welcome and use YAML list form (`- ` entries under a single `provenance:` key, never repeated keys). When synthesize merges facts from several captures, keep one list entry per source so "says who?" stays answerable |
+| ref                | no         | the system-of-record object this entity DENOTES, as one URI — `uc://catalog.schema.object` for Unity Catalog assets; other schemes earn conventions as needed. Binding, never evidence: provenance says where you learned it; ref says what it is. Meaningful on DATA_ASSET/REPORT/DOCUMENT (validate warns elsewhere); exported as the `ref` column of the warehouse entities table so SQL can join the graph to the catalog |
 | valid_from         | no         | ISO date — when a time-bounded fact starts holding (delegation window, decision)    |
 | valid_to           | no         | ISO date — when it stops. Supersede, never delete; expired facts stay for history   |
-| source_rev         | extracted  | commit SHA or doc revision at extraction                                            |
+| provenance_rev     | extracted  | commit SHA or doc revision at extraction                                            |
 | proposed_predicate | no         | vocabulary proposal for the schema owner                                            |
 | proposed_type      | no         | entity-type proposal for the schema owner; the file still carries the CLOSEST existing type so validation passes |
 | updated            | yes        | ISO date                                                                            |
@@ -33,7 +34,8 @@ what stops note-by-note schema drift once backfill waves start.
 
 - CLIENT — a specific client/customer organization (Acme Ltd). Grounded: schema.org/Organization (customer role)
 - SUPPLIER — a specific supplier/vendor organization. Grounded: schema.org/Organization (supplier role)
-- REPORT — a recurring deliverable, dashboard, query, or data asset. Grounded: schema.org/Dataset (loosely; home-grown because it also covers queries and dashboards). A REPORT documents access — grain, cadence, how to derive the numbers people ask for — never the measure values it contains
+- REPORT — a recurring deliverable, dashboard, or query. Grounded: schema.org/Report (loosely; home-grown because it also covers queries and dashboards). A REPORT documents access — grain, cadence, how to derive the numbers people ask for — never the measure values it contains. A dashboard's backing table is a DATA_ASSET; the dashboard stays a REPORT
+- DATA_ASSET — a named table, view, or dataset people consume by name. Grounded: schema.org/Dataset. Documents the business of the asset — purpose, grain, cadence, ownership, gotchas, how to derive the numbers people ask about — NEVER measure values and never a column-list transcription (the catalog already knows the columns). Bind to the physical object with `ref:` (e.g. `uc://catalog.schema.object`)
 - CONCEPT — a domain thing (Refund, Invoice). Grounded: SKOS skos:Concept
 - ROLE — a job function, never a person's name. Grounded: schema.org/Role
 - PROCESS — an activity or workflow step. Grounded: schema.org/Action (loosely; home-grown because our processes are recurring, not single acts)

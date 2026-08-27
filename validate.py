@@ -48,7 +48,7 @@ def check_name(label, value, fname, preds, errors, warnings):
         warnings.append(f"{fname}: {label} '{value}' contains a schema predicate word")
 
 
-def check_format(d, types, preds, errors, warnings, require_source=False):
+def check_format(d, types, preds, errors, warnings, require_provenance=False):
     f = d["file"]
     for p in d["problems"]:
         errors.append(f"{f}: {p}")
@@ -98,16 +98,48 @@ def check_format(d, types, preds, errors, warnings, require_source=False):
                 f"{f}: ambiguous relation (multiple predicates "
                 f"{sorted(found)}): '{rel}'"
             )
-    for src in d["source"]:
+    for src in d["provenance"]:
         if "://" not in src:
             if not any((base / src).exists() for base in (ROOT, ROOT.parent)):
-                errors.append(f"{f}: source path '{src}' does not exist")
-    if d["source_rev"] and not re.match(r"^[0-9a-f]{7,40}$|^r\d+$", d["source_rev"]):
+                errors.append(f"{f}: provenance path '{src}' does not exist")
+    if d["provenance_rev"] and not re.match(
+        r"^[0-9a-f]{7,40}$|^r\d+$", d["provenance_rev"]
+    ):
         errors.append(
-            f"{f}: source_rev '{d['source_rev']}' is not a commit SHA or revision"
+            f"{f}: provenance_rev '{d['provenance_rev']}' is not a commit SHA "
+            f"or revision"
         )
-    if require_source and not d["source"]:
-        errors.append(f"{f}: inbox files require 'source:' provenance")
+    if d["ref"]:
+        check_ref(d, f, errors, warnings)
+    if require_provenance and not d["provenance"]:
+        errors.append(f"{f}: inbox files require 'provenance:'")
+
+
+REF_TYPES = {"DATA_ASSET", "REPORT", "DOCUMENT"}  # where a ref is meaningful
+UC_NAME = re.compile(r"^[\w$]+\.[\w$]+\.[\w$]+$")
+
+
+def check_ref(d, f, errors, warnings):
+    """ref = the system-of-record object this entity denotes (binding, never
+    evidence — that's provenance). One URI; uc:// refs must be a UC FQN."""
+    ref = d["ref"]
+    if re.search(r"\s", ref):
+        errors.append(f"{f}: ref '{ref}' must be a single URI (no whitespace)")
+    elif ref.startswith("uc://"):
+        if not UC_NAME.match(ref[len("uc://") :]):
+            errors.append(
+                f"{f}: uc:// ref '{ref}' is not a three-part "
+                f"catalog.schema.object name"
+            )
+    elif "://" not in ref:
+        if not any((base / ref).exists() for base in (ROOT, ROOT.parent)):
+            errors.append(f"{f}: ref path '{ref}' does not exist")
+    if d["type"] and d["type"] not in REF_TYPES:
+        warnings.append(
+            f"{f}: ref on type {d['type']} — ref is meaningful on "
+            f"{'/'.join(sorted(REF_TYPES))}; is this entity really a "
+            f"system object?"
+        )
 
 
 def graph_checks(lib, inbox, preds, errors, warnings):
@@ -248,20 +280,20 @@ def main() -> None:
                 d = parse_header(Path(a).resolve(), ROOT)
                 # Warnings are maintainer signals — suppress in the
                 # coworker-facing format gate; full mode re-surfaces them.
-                check_format(d, types, preds, errors, [], require_source=True)
+                check_format(d, types, preds, errors, [], require_provenance=True)
     else:
         lib = load_docs(ROOT, tiers=("library",))
         inbox = load_docs(ROOT, tiers=("inbox",))
         for d in lib:
             check_format(d, types, preds, errors, warnings)
-        unsourced = sum(1 for d in lib if not d["source"])
+        unsourced = sum(1 for d in lib if not d["provenance"])
         if unsourced:
             warnings.append(
-                f"{unsourced} library file(s) lack source: provenance "
+                f"{unsourced} library file(s) lack provenance: "
                 f"(fine for curated files; required for extracted ones)"
             )
         for d in inbox:
-            check_format(d, types, preds, errors, warnings, require_source=True)
+            check_format(d, types, preds, errors, warnings, require_provenance=True)
         graph_checks(lib, inbox, preds, errors, warnings)
         drift_check(errors)
 

@@ -16,7 +16,7 @@ batch, one run per gated fact; its rules apply unchanged there.
 
 1. Fill the template below — one file per entity, saved to
    `inbox/<domain>/<slug>.md`. Types come from SCHEMA.md § Entity types;
-   never invent vocabulary. Add `source_rev:` (commit SHA) when the
+   never invent vocabulary. Add `provenance_rev:` (commit SHA) when the
    source is code. Don't know the domain? Use `inbox/_unsorted/` —
    synthesize will file it.
 2. Link related entities with `related: Name, Name` — canonical names,
@@ -38,31 +38,35 @@ aliases: # optional — other names people use
 related: <Entity, Entity> # optional — canonical names, no verb
 answers: # optional, 3-5 — questions this settles, as people ask them
   - <question>
-source: <path or URL — required; verbal/chat fact: slack://<channel>/<YYYY-MM-DD>-<who>; several sources: YAML list ("- " entries under one source: key)>
+provenance: <path or URL — required; verbal/chat fact: slack://<channel>/<YYYY-MM-DD>-<who>; several sources: YAML list ("- " entries under one provenance: key)>
+ref: <optional — one URI for the system object this entity IS (e.g. uc://catalog.schema.object); DATA_ASSET/REPORT/DOCUMENT only. Provenance says where you learned it; ref says what it is>
 updated: <YYYY-MM-DD>
 ---
 
 # <title>
 
 <the facts — why, who, gotchas; cite specifics. Never paste code or
-enumerations; source: points at them.>
+enumerations; provenance: points at them.>
 ```
 
 ## Does the document itself get an entity?
 
-Default NO — a document is a citation (`source:`), not an entity; its
-factoids go to the entities they're about. File it (DOCUMENT or REPORT)
-only if people ask for it by name ("where's the Acme runbook?") or it
-has behavior worth explaining (cadence, grain, lag, gotchas — reports,
-queries, dashboards). Even then the file describes the document; the
-factoids inside still fan out.
+Default NO — a document is a citation (`provenance:`), not an entity; its
+factoids go to the entities they're about. File it (DOCUMENT, REPORT, or
+DATA_ASSET for a table/dataset) only if people ask for it by name
+("where's the Acme runbook?") or it has behavior worth explaining
+(cadence, grain, lag, gotchas — reports, queries, dashboards, tables).
+Even then the file describes the document; the factoids inside still fan
+out.
 
 ## Rules
 
 - Code sources: extract policy, ownership, and why-facts only. Classes and
-  endpoints never get entities — point `source:` at them. A named table or
-  dataset people query MAY get a REPORT entity: document access (grain,
-  cadence, how to derive), never the values inside it.
+  endpoints never get entities — point `provenance:` at them. A named table
+  or dataset people query MAY get a DATA_ASSET entity: document the business
+  of the asset (purpose, grain, cadence, how to derive), bind it with
+  `ref:` (e.g. `uc://catalog.schema.object`), never copy its columns or the
+  values inside it.
 - Access, not answers: never record data values ("Q2 total was 5000") —
   record where and how to get them. Values go stale the moment they're
   written; the corpus holds the map, the data holds the numbers.

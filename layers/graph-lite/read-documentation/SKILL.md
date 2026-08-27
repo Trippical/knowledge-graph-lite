@@ -19,8 +19,8 @@ description: Answer questions from the knowledge library — two-tier ranked sea
    corpus, common words hit everywhere). Edges tagged `[staging]` point at
    a not-yet-promoted inbox entity; edges tagged `[unresolved]` are broken —
    do not traverse; report them.
-4. Answer citing `file § section`. Check `updated:` and `source:` — a fact
-   derived from a fast-moving source deserves a staleness caveat.
+4. Answer citing `file § section`. Check `updated:` and `provenance:` — a
+   fact derived from a fast-moving source deserves a staleness caveat.
 5. No hits → say "no memory matches" and suggest the write-documentation skill. NEVER
    answer a modeled-domain question from general knowledge without stating
    the library has no entry.

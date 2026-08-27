@@ -128,7 +128,7 @@ def test_inbox_entity_alias_collision():
         "title: Operations Manager capture\n"
         "entity: Operations Manager\n"
         "type: ROLE\n"
-        "source:\n"
+        "provenance:\n"
         "  - https://example.com/alias-gate\n"
         "updated: 2026-08-25\n"
         "---\n\nbody\n",
@@ -155,7 +155,7 @@ def test_temporal_keys():
         "type: PROCESS\n"
         "valid_from: 2026-03-01\n"
         "valid_to: 2026-03-31\n"
-        "source:\n"
+        "provenance:\n"
         "  - https://example.com/temporal\n"
         "updated: 2026-08-25\n"
         "---\n\nbody\n",

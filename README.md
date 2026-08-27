@@ -49,7 +49,7 @@ Three rules make the decoupling real:
     kglib.py             shared parser (core)
     validate.py          deterministic lint — the CI gate (core)
     build_index.py       projection: INDEX.md + registry.tsv + edges.tsv (generated, never hand-edited)
-    staleness_check.py   projection freshness: source_rev vs HEAD
+    staleness_check.py   projection freshness: provenance_rev vs HEAD
     tests/test_gold.py   gold runner for the graph-lite layer + governance invariants
     layers/graph-lite/   starter read layer: recall.py (push), search.py (pull), read skill
     layers/delta/        optional warehouse mirror: publish_delta.py (parameterized), ported write skills
@@ -76,7 +76,7 @@ Add to `.claude/settings.json` (or your agent's prompt-hook equivalent):
 ## Lifecycle (journal + compaction)
 
 1. **Capture** (any connector, cheap): facts land in `inbox/` in correct
-   format with `source:` provenance. Format-linted, PR'd, merged fast.
+   format with `provenance:`. Format-linted, PR'd, merged fast.
    No dedupe, no linking — comprehension is deferred.
 2. **Synthesize** (the gate — strong model + human, on cadence): promotes
    inbox → `library/` — dedupes against registry.tsv, canonicalizes
@@ -90,7 +90,7 @@ Add to `.claude/settings.json` (or your agent's prompt-hook equivalent):
 
 `validate.py` runs in CI on every PR:
 
-- inbox files: parseable header, required keys, `source:` present, type and
+- inbox files: parseable header, required keys, `provenance:` present, type and
   predicates from SCHEMA.md (format mode — cheap, never blocks captures long).
 - library files: all of the above plus referential integrity (every relation
   endpoint resolves to a library `entity:`), global entity uniqueness,
@@ -147,12 +147,15 @@ nobody asks anymore.
 
 Code is EVIDENCE for policy, ownership, and why-facts — never transcribe
 code structure. Classes and endpoints never get entities (LSP and the
-compiler already know those, and they never go stale). A table or dataset
-people consume by name may get a REPORT entity documenting access — grain,
-cadence, how to derive the numbers people ask for — never the values
-themselves. Point `source:` + `source_rev:` at the code. (Planned, not yet
-built: a CI job diffing `source_rev` against HEAD to flag stale entities —
-required before any code-derived backfill wave.)
+compiler already know those, and they never go stale); point `provenance:`
++ `provenance_rev:` at the code instead. A named table, view, or dataset
+people consume by name is different: it MAY get a DATA_ASSET entity
+carrying the business of the asset — purpose, grain, cadence, ownership,
+gotchas — bound to the physical object via `ref:` (e.g.
+`uc://catalog.schema.object`), never its column list and never the values
+inside it. (`staleness_check.py` diffs `provenance_rev` against HEAD to
+flag stale code-derived entities — wire it into CI before any
+code-derived backfill wave.)
 
 ## File format rules
 

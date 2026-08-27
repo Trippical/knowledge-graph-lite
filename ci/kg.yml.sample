@@ -26,6 +26,6 @@ jobs:
             echo "PR touches $n library files (>10): split it, or add the backfill-wave label"
             exit 1
           fi
-      # code-derived entities must track their source; no-ops until source_rev is used
+      # code-derived entities must track their source; no-ops until provenance_rev is used
       - name: staleness check
         run: python <libdir>/staleness_check.py --repo .

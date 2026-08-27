@@ -26,8 +26,8 @@ sole path to `library/`.
    `proposed_predicate:`.
 3. DECOMPOSE each source into candidate facts: term definitions,
    why-decisions, ownership, grain, gotchas, access/derivation info.
-   Never copy code, column lists, or enumerations — `source:` points at
-   them; agents follow the link for detail.
+   Never copy code, column lists, or enumerations — `provenance:` points
+   at them; agents follow the link for detail.
 4. Run THE GATE on every candidate, in order:
    1. **Key term** — the source DEFINES a domain term → capture; its
       question is inherently "what is X?".
@@ -46,7 +46,7 @@ sole path to `library/`.
    - Before minting any NEW entity name, `python validate.py --dupe
      "<name>"` — near-match in the registry → the capture takes the
      EXISTING canonical name (the primitive's merge rule); don't fork.
-   - `source_rev:` mandatory when the source is code (commit SHA at
+   - `provenance_rev:` mandatory when the source is code (commit SHA at
      extraction time). Every body claim must trace to a source line —
      no general-knowledge fill; can't cite it, leave it out.
    - Ambiguous or judgment-heavy fact → capture verbatim with the
@@ -70,9 +70,11 @@ sole path to `library/`.
 
 ## Rules
 
-- A source document itself gets an entity (DOCUMENT/REPORT) only if
-  it's asked for by name or has behavior worth explaining — default:
-  citation only. A table or dataset people consume by name MAY get a
-  REPORT entity documenting access, never values.
+- A source document itself gets an entity (DOCUMENT/REPORT/DATA_ASSET)
+  only if it's asked for by name or has behavior worth explaining —
+  default: citation only. A table or dataset people consume by name MAY
+  get a DATA_ASSET entity documenting the business of the asset (bound
+  via `ref:`, e.g. `uc://catalog.schema.object`), never columns, never
+  values.
 - This skill is for maintainers and backfill waves, not everyday use —
   a coworker with one fact wants write-documentation directly.

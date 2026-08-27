@@ -3,7 +3,7 @@
 import re
 from pathlib import Path
 
-LIST_KEYS = ("aliases", "relations", "related", "answers", "source")
+LIST_KEYS = ("aliases", "relations", "related", "answers", "provenance")
 SCALAR_KEYS = (
     "title",
     "entity",
@@ -12,7 +12,8 @@ SCALAR_KEYS = (
     "updated",
     "valid_from",
     "valid_to",
-    "source_rev",
+    "provenance_rev",
+    "ref",
     "proposed_predicate",
     "proposed_type",
 )

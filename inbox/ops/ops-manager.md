@@ -6,7 +6,7 @@ related: Refund Approvals
 answers:
   - Who signs off while the Ops Manager is on leave in March?
   - How long does the March delegation cover run?
-source: https://github.com/Glitch-Cat-Club/graph-memory-starter/blob/main/corpus/delegation-memo.md
+provenance: https://github.com/Glitch-Cat-Club/graph-memory-starter/blob/main/corpus/delegation-memo.md
 valid_from: 2026-03-01
 valid_to: 2026-03-31
 updated: 2026-08-25
@@ -26,7 +26,7 @@ inbox/ so the staging tier isn't empty in the demo:
 - `entity:` matches the EXISTING canonical name (checked registry.tsv
   first), so synthesize merges these facts into
   library/ops/ops-manager.md instead of forking a new entity.
-- `source:` is a real URL — every capture carries provenance.
+- `provenance:` is a real URL — every capture says where it came from.
 - `valid_from`/`valid_to` bound the time-boxed fact; supersede, never
   delete.
 - `related:` uses canonical names with no verb — predicated `relations:`

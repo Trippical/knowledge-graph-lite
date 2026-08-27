@@ -31,7 +31,7 @@ def ddl(prefix: str) -> dict:
     return {
         "kg_entities": f"""CREATE OR REPLACE TABLE {prefix}.kg_entities (
   entity STRING, type STRING, description STRING, file STRING,
-  aliases STRING, updated STRING
+  aliases STRING, updated STRING, ref STRING
 ) USING DELTA""",
         "kg_edges": f"""CREATE OR REPLACE TABLE {prefix}.kg_edges (
   subject STRING, predicate STRING, object STRING, source_file STRING
@@ -48,14 +48,18 @@ def build_rows(docs: list, preds: set) -> tuple:
     for d in docs:
         if not d["entity"]:
             continue
+        # ref = the system object the entity denotes (uc://catalog.schema.object
+        # joins to information_schema); NULL when the entity denotes no object
+        ref = f"'{esc(d['ref'])}'" if d["ref"] else "NULL"
         entities.append(
-            "('{}','{}','{}','{}','{}','{}')".format(
+            "('{}','{}','{}','{}','{}','{}',{})".format(
                 esc(d["entity"]),
                 esc(d["type"]),
                 esc(d["description"]),
                 esc(d["file"]),
                 esc("|".join(d["aliases"])),
                 esc(d["updated"]),
+                ref,
             )
         )
         for rel in d["relations"]:

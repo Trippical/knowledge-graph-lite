@@ -17,8 +17,8 @@ Use when someone shares a fact, doc, policy, or update worth recording.
 No dedupe, no linking, no comprehension — that's synthesize's job.
 
 1. One file per entity → `inbox/<domain>/<slug>.md`. Type from SCHEMA.md §
-   Entity types; never invent vocabulary. `source_rev:` (commit SHA) when
-   the source is code.
+   Entity types; never invent vocabulary. `provenance_rev:` (commit SHA)
+   when the source is code.
 2. Link related entities with `related: Name, Name` (canonical names, no
    verb). Unsure of the canonical name → put the fact in body prose
    instead; never write `relations:` from this skill.
@@ -26,8 +26,11 @@ No dedupe, no linking, no comprehension — that's synthesize's job.
 4. PR touching ONLY `inbox/`. Never edit `library/` from this skill.
 
 Code sources: extract policy, ownership, why-facts only — classes and
-endpoints never get entities; a table or dataset people consume by name
-may get a REPORT entity documenting access, never values.
+endpoints never get entities; point `provenance:` at them. A named table
+or dataset people consume by name MAY get a DATA_ASSET entity: the
+business of the asset (purpose, grain, cadence, ownership, gotchas),
+bound via `ref: uc://catalog.schema.object` — never its columns, never
+the values inside it.
 
 ## Extract — batch driver over write-documentation
 
@@ -40,7 +43,7 @@ facts, gates them, and runs write-documentation once per survivor.
    count. No open-ended crawling.
 2. Decompose each source into candidates (definitions, why-decisions,
    ownership, grain, gotchas, derivations). Never copy code/column
-   lists/enumerations — `source:` points at them.
+   lists/enumerations — `provenance:` points at them.
 3. THE GATE, in order: source defines a key term → capture; can't write
    the `answers:` question first, as a person would ask it → drop;
    borderline → keep only if ignorance causes wrong decisions, repeated
@@ -48,7 +51,7 @@ facts, gates them, and runs write-documentation once per survivor.
    never the value.
 4. Per survivor: a write-documentation run, plus batch extras —
    `--dupe` before any new name (near-match takes the existing
-   canonical name), `source_rev:` for code, verbatim quotes for
+   canonical name), `provenance_rev:` for code, verbatim quotes for
    judgment-heavy facts, doc-vs-code conflicts recorded for synthesize.
 5. `python validate.py --format` on every new file.
 6. PR touching ONLY `inbox/`, `backfill-wave` label, one domain per PR,
