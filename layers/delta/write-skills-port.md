@@ -1,7 +1,7 @@
 # Knowledge-graph write skills (ported)
 
-Canonical source: `skills/{write-documentation,extract,synthesize}/SKILL.md`
-in this repo. This is a read-only port for when you're already in a
+Canonical source: `connectors/{write-documentation,extract}/SKILL.md` and
+`gate/synthesize/SKILL.md` in this repo. This is a read-only port for when you're already in a
 Databricks context and need to record a fact — if the two copies ever
 disagree, the repo copy wins; update this file to match.
 
