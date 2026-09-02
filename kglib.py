@@ -1,45 +1,14 @@
-"""Shared parsing for the knowledge library. Stdlib only."""
+"""Shared frontmatter parsing for the text library. Stdlib only."""
 
 import re
 from pathlib import Path
 
-LIST_KEYS = ("aliases", "relations", "related", "answers", "provenance")
-SCALAR_KEYS = (
-    "title",
-    "entity",
-    "type",
-    "description",
-    "updated",
-    "valid_from",
-    "valid_to",
-    "provenance_rev",
-    "ref",
-    "proposed_predicate",
-    "proposed_type",
-)
+LIST_KEYS = ("aliases", "related", "relations", "answers", "provenance")
+SCALAR_KEYS = ("title", "entity", "type", "description", "provenance_rev", "updated")
 KNOWN_KEYS = set(LIST_KEYS) | set(SCALAR_KEYS)
 STOP = {
-    "what",
-    "when",
-    "who",
-    "how",
-    "does",
-    "is",
-    "are",
-    "a",
-    "an",
-    "the",
-    "to",
-    "of",
-    "for",
-    "in",
-    "on",
-    "and",
-    "or",
-    "can",
-    "do",
-    "did",
-    "it",
+    "what", "when", "who", "how", "does", "is", "are", "a", "an", "the",
+    "to", "of", "for", "in", "on", "and", "or", "can", "do", "did", "it",
 }
 
 
@@ -110,8 +79,6 @@ def load_docs(root: Path, tiers=("library", "inbox")) -> list:
         if not base.exists():
             continue
         for p in sorted(base.rglob("*.md")):
-            if p.name == "GOLD.md":  # committed gold-question spec, not an entity
-                continue
             d = parse_header(p, root)
             d["tier"] = tier
             d["domain"] = p.parent.name if p.parent != base else ""
@@ -140,9 +107,7 @@ def relation_predicates(rel: str, predicates: set) -> list:
 
 
 def split_relation(rel: str, predicates: set) -> tuple:
-    """'Subject predicate Object' -> (subject, predicate, object) or Nones.
-    Ambiguous strings (2+ predicates) are a validate.py error; here we
-    split on the first predicate by position."""
+    """'Subject predicate Object' -> (subject, predicate, object) or Nones."""
     found = relation_predicates(rel, predicates)
     if not found:
         return None, None, None

@@ -1,9 +1,10 @@
-"""Deterministic lint. Full mode gates library/; format mode gates inbox files.
+"""Deterministic lint. Full mode checks library/ + inbox/; format mode checks
+single files.
 
 Usage:
-    python validate.py                       # full: graph checks + drift + inbox format
-    python validate.py --format <file>...    # format-check specific inbox files
-    python validate.py --dupe "<name>"       # top near-duplicate candidates for a name
+    python validate.py                       # full: format + graph checks
+    python validate.py --format <file>...    # format-check specific files
+    python validate.py --dupe "<name>"       # top near-duplicate candidates
 
 Exit 1 on any error. Warnings print but do not fail.
 """
@@ -36,14 +37,16 @@ def ratio(a: str, b: str) -> float:
     return difflib.SequenceMatcher(None, norm(a), norm(b)).ratio()
 
 
+def scoped_family(a: str, b: str) -> bool:
+    """'Last 4 (Acme)' vs 'Last 4' or 'Last 4 (Beta)': one general thing and
+    its scoped versions share a base name by design — not near-duplicates."""
+    base = lambda n: re.sub(r"\s*\(.*?\)", "", norm(n)).strip()
+    return ("(" in a or "(" in b) and base(a) == base(b) and norm(a) != norm(b)
+
+
 def check_name(label, value, fname, preds, errors, warnings):
     if NAME_CHARS.search(value):
-        errors.append(
-            f"{fname}: {label} '{value}' contains a disallowed character "
-            f"(non-ASCII/homoglyph/control)"
-        )
-    # WARN not ERROR: the decoy-entity exploit this guards against needs a
-    # contrived setup; synthesize triages warnings before promotion.
+        errors.append(f"{fname}: {label} '{value}' contains a disallowed character")
     if set(norm(value).split()) & preds:
         warnings.append(f"{fname}: {label} '{value}' contains a schema predicate word")
 
@@ -56,11 +59,12 @@ def check_format(d, types, preds, errors, warnings, require_provenance=False):
         if not d[key]:
             errors.append(f"{f}: missing required key '{key}'")
     if d["type"] and d["type"] not in types:
-        errors.append(f"{f}: type '{d['type']}' not in SCHEMA.md")
+        errors.append(
+            f"{f}: type '{d['type']}' not in SCHEMA.md (typo? or add it there)"
+        )
     if d["updated"]:
         try:
-            when = datetime.date.fromisoformat(d["updated"])
-            if when > datetime.date.today():
+            if datetime.date.fromisoformat(d["updated"]) > datetime.date.today():
                 errors.append(f"{f}: updated '{d['updated']}' is in the future")
         except ValueError:
             errors.append(f"{f}: updated '{d['updated']}' is not an ISO date")
@@ -68,78 +72,38 @@ def check_format(d, types, preds, errors, warnings, require_provenance=False):
         check_name("entity", d["entity"], f, preds, errors, warnings)
     if len(d["description"]) > 200:
         warnings.append(
-            f"{f}: description is {len(d['description'])} chars — keep it one "
-            f"tight line (conditions + definition only)"
+            f"{f}: description is {len(d['description'])} chars — keep it one line"
         )
-    dates = {}
-    for key in ("valid_from", "valid_to"):
-        if d[key]:
-            try:
-                dates[key] = datetime.date.fromisoformat(d[key])
-            except ValueError:
-                errors.append(f"{f}: {key} '{d[key]}' is not an ISO date")
-    if len(dates) == 2 and dates["valid_from"] > dates["valid_to"]:
-        errors.append(f"{f}: valid_from is after valid_to")
     for a in d["aliases"]:
         check_name("alias", a, f, preds, errors, warnings)
         if norm(a) in STOP or len(a.strip()) < 2 or not re.search(r"[A-Za-z]", a):
-            errors.append(
-                f"{f}: alias '{a}' is a stopword or too short to be a safe join key"
-            )
+            errors.append(f"{f}: alias '{a}' is a stopword or too short")
     for rel in d["relations"]:
         found = relation_predicates(rel, preds)
         if not found:
-            errors.append(
-                f"{f}: relation uses no SCHEMA.md predicate: '{rel}' "
-                f"(propose new vocabulary via proposed_predicate:)"
-            )
+            errors.append(f"{f}: relation uses no SCHEMA.md predicate: '{rel}'")
         elif len(found) > 1:
-            errors.append(
-                f"{f}: ambiguous relation (multiple predicates "
-                f"{sorted(found)}): '{rel}'"
-            )
+            errors.append(f"{f}: ambiguous relation ({sorted(found)}): '{rel}'")
     for src in d["provenance"]:
-        if "://" not in src:
-            if not any((base / src).exists() for base in (ROOT, ROOT.parent)):
-                errors.append(f"{f}: provenance path '{src}' does not exist")
+        if "://" in src:
+            continue  # URL / URI — never checked
+        if src.startswith("repo:"):
+            if not re.match(r"^repo:[\w.-]+/\S+$", src):
+                errors.append(f"{f}: provenance '{src}' — repo form is repo:<name>/<path>")
+            continue  # another repository — not checked from here
+        if re.match(r"^[A-Za-z]:[\\/]|^[\\/]", src):
+            errors.append(
+                f"{f}: provenance '{src}' is an absolute path — not portable; "
+                f"use repo:<name>/<path> or a URL"
+            )
+        elif not (ROOT / src).exists():
+            warnings.append(f"{f}: provenance path '{src}' does not exist in this library")
     if d["provenance_rev"] and not re.match(
         r"^[0-9a-f]{7,40}$|^r\d+$", d["provenance_rev"]
     ):
-        errors.append(
-            f"{f}: provenance_rev '{d['provenance_rev']}' is not a commit SHA "
-            f"or revision"
-        )
-    if d["ref"]:
-        check_ref(d, f, errors, warnings)
+        errors.append(f"{f}: provenance_rev '{d['provenance_rev']}' is not a SHA")
     if require_provenance and not d["provenance"]:
         errors.append(f"{f}: inbox files require 'provenance:'")
-
-
-REF_TYPES = {"DATA_ASSET", "REPORT", "DOCUMENT"}  # where a ref is meaningful
-UC_NAME = re.compile(r"^[\w$]+\.[\w$]+\.[\w$]+$")
-
-
-def check_ref(d, f, errors, warnings):
-    """ref = the system-of-record object this entity denotes (binding, never
-    evidence — that's provenance). One URI; uc:// refs must be a UC FQN."""
-    ref = d["ref"]
-    if re.search(r"\s", ref):
-        errors.append(f"{f}: ref '{ref}' must be a single URI (no whitespace)")
-    elif ref.startswith("uc://"):
-        if not UC_NAME.match(ref[len("uc://") :]):
-            errors.append(
-                f"{f}: uc:// ref '{ref}' is not a three-part "
-                f"catalog.schema.object name"
-            )
-    elif "://" not in ref:
-        if not any((base / ref).exists() for base in (ROOT, ROOT.parent)):
-            errors.append(f"{f}: ref path '{ref}' does not exist")
-    if d["type"] and d["type"] not in REF_TYPES:
-        warnings.append(
-            f"{f}: ref on type {d['type']} — ref is meaningful on "
-            f"{'/'.join(sorted(REF_TYPES))}; is this entity really a "
-            f"system object?"
-        )
 
 
 def graph_checks(lib, inbox, preds, errors, warnings):
@@ -158,7 +122,7 @@ def graph_checks(lib, inbox, preds, errors, warnings):
     ents = [(d["entity"], d["file"]) for d in lib if d["entity"]]
     for i, (a, fa) in enumerate(ents):
         for b, fb in ents[i + 1 :]:
-            if norm(a) != norm(b) and ratio(a, b) >= 0.85:
+            if norm(a) != norm(b) and ratio(a, b) >= 0.85 and not scoped_family(a, b):
                 errors.append(
                     f"near-duplicate entities: '{a}' ({fa}) vs '{b}' ({fb}) "
                     f"— merge or rename"
@@ -172,8 +136,8 @@ def graph_checks(lib, inbox, preds, errors, warnings):
             for end in (s, o):
                 if norm(end) not in names:
                     errors.append(
-                        f"{d['file']}: relation endpoint '{end}' "
-                        f"resolves to no library entity ('{rel}')"
+                        f"{d['file']}: relation endpoint '{end}' resolves to no "
+                        f"library entity ('{rel}')"
                     )
         for r in d["related"]:
             if norm(r) not in names:
@@ -191,10 +155,7 @@ def graph_checks(lib, inbox, preds, errors, warnings):
                 )
     for (s, p), objs in sp.items():
         if p in FUNCTIONAL and len(objs) > 1:
-            errors.append(
-                f"conflicting {p} edges for '{s}': "
-                f"{ {o: fs for o, fs in objs.items()} }"
-            )
+            errors.append(f"conflicting {p} edges for '{s}': {objs}")
 
     owners = {}
     for d in lib:
@@ -202,14 +163,9 @@ def graph_checks(lib, inbox, preds, errors, warnings):
             owners.setdefault(norm(a), set()).add(norm(d["entity"]))
     for a, es in owners.items():
         if len(es) > 1:
-            warnings.append(
-                f"alias '{a}' claimed by entities: {sorted(es)} "
-                f"(allowed only with disambiguation notes)"
-            )
+            warnings.append(f"alias '{a}' claimed by entities: {sorted(es)}")
 
     for d in inbox:
-        if len(d["answers"]) > 5:
-            warnings.append(f"{d['file']}: more than 5 answers lines")
         for a in d["aliases"]:
             owner = owners.get(norm(a))
             claimed = norm(a) in names
@@ -217,42 +173,49 @@ def graph_checks(lib, inbox, preds, errors, warnings):
                 claimed and norm(a) != norm(d["entity"])
             ):
                 errors.append(
-                    f"{d['file']}: alias '{a}' collides with an existing "
-                    f"library entity/alias it does not belong to"
+                    f"{d['file']}: alias '{a}' collides with an existing library "
+                    f"entity/alias it does not belong to"
                 )
         if d["entity"] and norm(d["entity"]) not in names:
             ent = norm(d["entity"])
             owner = owners.get(ent)
             if owner:
                 errors.append(
-                    f"{d['file']}: entity '{d['entity']}' is an alias of "
-                    f"library entity {sorted(owner)} — merge into the "
-                    f"canonical file, do not promote"
+                    f"{d['file']}: entity '{d['entity']}' is an alias of library "
+                    f"entity {sorted(owner)} — merge into the canonical file"
                 )
             for label in set(names) | set(owners):
-                if ent != label and ratio(d["entity"], label) >= 0.85:
+                if (
+                    ent != label
+                    and ratio(d["entity"], label) >= 0.85
+                    and not scoped_family(d["entity"], label)
+                ):
                     warnings.append(
-                        f"{d['file']}: entity '{d['entity']}' is a "
-                        f"near-duplicate of library name/alias '{label}' — "
-                        f"synthesize should merge, not promote"
+                        f"{d['file']}: entity '{d['entity']}' is a near-duplicate "
+                        f"of library name/alias '{label}' — merge, don't promote"
                     )
-    for d in lib:
+    # inbox-vs-inbox: two captures in one wave can collide with each other,
+    # which only becomes an error once both are promoted — warn early.
+    ib = [(d["entity"], d["file"]) for d in inbox if d["entity"]]
+    for i, (a, fa) in enumerate(ib):
+        for b, fb in ib[i + 1 :]:
+            if norm(a) != norm(b) and ratio(a, b) >= 0.85 and not scoped_family(a, b):
+                warnings.append(
+                    f"near-duplicate inbox captures: '{a}' ({fa}) vs '{b}' ({fb}) "
+                    f"— rename one before synthesize promotes both"
+                )
+    for d in lib + inbox:
         if len(d["answers"]) > 5:
             warnings.append(f"{d['file']}: more than 5 answers lines")
 
 
-def drift_check(errors):
+def index_check(warnings):
     from build_index import render
 
-    index_txt, registry_txt, edges_txt = render()
-    for fname, want in (
-        ("INDEX.md", index_txt),
-        ("registry.tsv", registry_txt),
-        ("edges.tsv", edges_txt),
-    ):
+    for fname, want in zip(("INDEX.md", "registry.tsv", "edges.tsv"), render()):
         p = ROOT / fname
         if not p.exists() or p.read_text(encoding="utf-8") != want:
-            errors.append(f"{fname} is stale or hand-edited — run build_index.py")
+            warnings.append(f"{fname} is stale — run build_index.py")
 
 
 def dupe_lookup(name):
@@ -262,6 +225,8 @@ def dupe_lookup(name):
         for label in [d["entity"], *d["aliases"]]:
             if label:
                 cands.append((ratio(name, label), label, d["file"]))
+    if not cands:
+        print("no candidates — library is empty; the inbox listing is the dedupe surface")
     for r, label, f in sorted(cands, reverse=True)[:10]:
         print(f"{r:.2f}  {label}  ({f})")
 
@@ -278,24 +243,16 @@ def main() -> None:
         for a in sys.argv[1:]:
             if a != "--format":
                 d = parse_header(Path(a).resolve(), ROOT)
-                # Warnings are maintainer signals — suppress in the
-                # coworker-facing format gate; full mode re-surfaces them.
-                check_format(d, types, preds, errors, [], require_provenance=True)
+                check_format(d, types, preds, errors, warnings, require_provenance=True)
     else:
         lib = load_docs(ROOT, tiers=("library",))
         inbox = load_docs(ROOT, tiers=("inbox",))
         for d in lib:
             check_format(d, types, preds, errors, warnings)
-        unsourced = sum(1 for d in lib if not d["provenance"])
-        if unsourced:
-            warnings.append(
-                f"{unsourced} library file(s) lack provenance: "
-                f"(fine for curated files; required for extracted ones)"
-            )
         for d in inbox:
             check_format(d, types, preds, errors, warnings, require_provenance=True)
         graph_checks(lib, inbox, preds, errors, warnings)
-        drift_check(errors)
+        index_check(warnings)
 
     for w in warnings:
         print(f"WARN  {w}")

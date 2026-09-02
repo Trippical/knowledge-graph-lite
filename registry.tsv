@@ -1,11 +1,11 @@
-Customer Support SOP	PROCESS	library/ops/customer-support-sop.md	support SOP
-Founder	ROLE	library/ops/founder.md	
-Incident Response	PROCESS	library/ops/incident-response.md	incidents|sev-1
-Onboarding Process	PROCESS	library/ops/onboarding-process.md	onboarding
-Ops Manager	ROLE	library/ops/ops-manager.md	Operations Manager
-Refund Approvals	POLICY	library/ops/refund-approvals.md	refund policy|refunds
-Refund	CONCEPT	library/ops/refund.md	
-Supplier Payments	PROCESS	library/ops/supplier-payments.md	supplier invoices
+Advertiser	CONCEPT	library/advertisers/advertiser.md	Client|Merchant
+Approval Authority	POLICY	library/ops/approval-authority.md	sign-off|approvals|escalation path
+Campaign Owner	ROLE	library/ops/campaign-owner.md	
+Cap Override	PROCESS	library/ops/cap-override.md	
+Clawback Dispute	PROCESS	library/ops/clawback-dispute.md	clawback
+Manual Adjustment	PROCESS	library/ops/manual-adjustment.md	
+Ops Manager	ROLE	library/ops/ops-manager.md	
 Support Lead	ROLE	library/ops/support-lead.md	
-Tooling Inventory	DOCUMENT	library/ops/tooling-inventory.md	
+VP Finance	ROLE	library/ops/vp-finance.md	Finance Director
+Publisher	CONCEPT	library/publishers/publisher.md	FI|Bank Partner
 Glossary	DOCUMENT	library/shared/glossary.md	terminology|definitions

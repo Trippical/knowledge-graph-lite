@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"$CLAUDE_PROJECT_DIR/recall.py\" --hook",
+            "timeout": 15,
+            "statusMessage": "Graph recall..."
+          }
+        ]
+      }
+    ]
+  }
+}

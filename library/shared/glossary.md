@@ -5,20 +5,20 @@ type: DOCUMENT
 aliases:
   - terminology
   - definitions
-relations:
-  - Glossary references Refund
-  - Glossary references Incident Response
+related: Advertiser, Publisher
 answers:
-  - What does refund / escalation / severity-1 / delegation mean?
-updated: 2026-08-25
+  - What does activation / clearing file / campaign / offer / reversal mean?
+updated: 2026-09-02
 ---
 
 # Glossary
 
-| Term       | Definition                                                              |
-| ---------- | ----------------------------------------------------------------------- |
-| Refund     | Money returned to a customer — see refund-approvals.md for bands        |
-| Escalation | Routing an unresolved ticket or incident up the chain                   |
-| Severity-1 | An incident with the site down or payments failing                      |
-| Delegation | Time-bounded transfer of a role's sign-off authority to a named cover   |
-| 30-day terms | Supplier invoices fall due 30 days after receipt                      |
+| Term          | Definition                                                       |
+| ------------- | ---------------------------------------------------------------- |
+| Activation    | Customer opts into an offer before purchasing                    |
+| Campaign      | A merchant-funded set of offers with a budget and date range     |
+| Clearing file | Issuer file confirming a transaction finally posted              |
+| Merchant      | The business funding an offer                                    |
+| Offer         | A reward proposition targeted to customers (rate, window, spend) |
+| Redemption    | A qualified transaction that earns a reward                      |
+| Reversal      | Clawback of a paid reward                                        |
