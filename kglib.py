@@ -1,7 +1,14 @@
 """Shared frontmatter parsing for the text library. Stdlib only."""
 
+import os
 import re
 from pathlib import Path
+
+
+def corpus_root(script_file: str) -> Path:
+    """The library root: $KG_ROOT when set (plugin use), else the scripts' own folder."""
+    env = os.environ.get("KG_ROOT")
+    return Path(env).resolve() if env else Path(script_file).resolve().parent
 
 LIST_KEYS = ("aliases", "related", "relations", "answers", "provenance")
 SCALAR_KEYS = ("title", "entity", "type", "description", "provenance_rev", "updated")

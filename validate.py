@@ -17,6 +17,7 @@ from pathlib import Path
 
 from kglib import (
     STOP,
+    corpus_root,
     load_docs,
     load_schema,
     parse_header,
@@ -24,7 +25,7 @@ from kglib import (
     split_relation,
 )
 
-ROOT = Path(__file__).resolve().parent
+ROOT = corpus_root(__file__)
 NAME_CHARS = re.compile(r"[^A-Za-z0-9 £/&()'._-]")
 FUNCTIONAL = {"delegates_to", "superseded_by"}  # one object per subject
 

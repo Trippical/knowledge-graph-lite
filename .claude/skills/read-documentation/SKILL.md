@@ -9,7 +9,9 @@ Recall already ran on your prompt (the hook injects up to 8 triples plus
 descriptions). Use this skill when that wasn't enough or the question is
 about content, not structure.
 
-1. `python search.py "<question>"` — ranked, capped at 15.
+1. `python search.py "<question>"` — ranked, capped at 15. (From the
+   corpus root; as the plugin, `${CLAUDE_PLUGIN_ROOT}/search.py` with
+   `$KG_ROOT` set.)
 2. Trust tiers: `library/` hits are authoritative. Hits tagged
    `[UNVERIFIED — inbox]` are recent captures — usable, cite with the
    caveat. If inbox contradicts library, answer from library and flag it.

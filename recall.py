@@ -22,9 +22,9 @@ import re
 import sys
 from pathlib import Path
 
-from kglib import STOP, load_docs, words
+from kglib import STOP, corpus_root, load_docs, words
 
-ROOT = Path(__file__).resolve().parent
+ROOT = corpus_root(__file__)
 MAX_HOPS = 3
 MAX_TRIPLES = 8
 MAX_ENTITIES = 8

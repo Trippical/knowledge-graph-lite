@@ -18,7 +18,9 @@ DB can read the same files later.
     library/<domain>/  canonical tier — validated, graph-complete
     inbox/<domain>/    staging tier — captures awaiting synthesis
     .claude/skills/    write-documentation, scope, extract, synthesize, read-documentation
-    .claude/settings.json  recall.py wired as a UserPromptSubmit hook
+    .claude/settings.json  recall.py wired as a UserPromptSubmit hook (project use)
+    .claude-plugin/    plugin manifest — the repo doubles as a Claude Code plugin
+    hooks/hooks.json   the same recall hook, for plugin use
     kglib.py           shared parser
     validate.py        lint (--format one file, --dupe a name, or full)
     build_index.py     regenerates INDEX.md, registry.tsv (entity/type/file/aliases/ref), edges.tsv — never hand-edit
@@ -43,6 +45,26 @@ DB can read the same files later.
 
 Model split that has held up in testing: scope and synthesize on Opus,
 extract and write-documentation on Sonnet.
+
+## Two ways to use it
+
+**As a project.** Clone the corpus repo and open it in Claude Code. The
+skills in `.claude/skills/` and the recall hook in `.claude/settings.json`
+are picked up automatically; scripts run from the root.
+
+**As a plugin.** Install this repo as a Claude Code plugin and point it at
+a corpus that lives elsewhere:
+
+    claude --plugin-dir <path-to-this-clone>        # dev / local
+    # or add it to a marketplace and: claude plugin install knowledge-graph@<marketplace>
+
+Then set `KG_ROOT` to the corpus root — in your shell, or in the project's
+`.claude/settings.json` under `"env"`. The scripts resolve the corpus from
+`KG_ROOT` when it is set and from their own folder when it isn't, so the
+same files work both ways. Plugin skills are invoked as
+`/knowledge-graph:<name>`. If you open the corpus repo itself with the
+plugin installed, disable one of the two recall hooks or you'll get the
+injection twice.
 
 ## Quality floor
 

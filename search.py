@@ -19,9 +19,9 @@ import re
 import sys
 from pathlib import Path
 
-from kglib import STOP, load_docs, load_schema, split_relation, words
+from kglib import STOP, corpus_root, load_docs, load_schema, split_relation, words
 
-ROOT = Path(__file__).resolve().parent
+ROOT = corpus_root(__file__)
 CAP = 15
 
 

@@ -7,9 +7,9 @@ plus one row (predicate `related`) per plain related-link. recall.py walks it.
 
 from pathlib import Path
 
-from kglib import load_docs, load_schema, split_relation
+from kglib import corpus_root, load_docs, load_schema, split_relation
 
-ROOT = Path(__file__).resolve().parent
+ROOT = corpus_root(__file__)
 
 
 def render() -> tuple:

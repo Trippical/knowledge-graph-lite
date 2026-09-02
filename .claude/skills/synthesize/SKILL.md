@@ -5,7 +5,9 @@ description: Promote inbox captures into library/ — dedupe, canonicalize, conn
 
 # Synthesize (compaction)
 
-The ONLY path from `inbox/` to `library/`.
+The ONLY path from `inbox/` to `library/`. Scripts run as
+`python <script>.py` from the corpus root; installed as the plugin, they
+live at `${CLAUDE_PLUGIN_ROOT}/` and the corpus is `$KG_ROOT`.
 
 ## Steps
 

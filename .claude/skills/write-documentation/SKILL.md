@@ -9,6 +9,9 @@ Get information INTO the corpus cheaply. This is the capture primitive —
 the only thing that writes inbox files. Extract drives it in batch; these
 rules apply unchanged there.
 
+Scripts run as `python <script>.py` from the corpus root. Installed as the
+plugin, they live at `${CLAUDE_PLUGIN_ROOT}/` and the corpus is `$KG_ROOT`.
+
 ## Steps
 
 1. Check `registry.tsv` (entities and aliases) for the canonical name. A

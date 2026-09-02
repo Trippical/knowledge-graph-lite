@@ -1,0 +1,7 @@
+{
+  "name": "knowledge-graph",
+  "description": "Governed markdown text library with a graph in the headers: write-documentation, scope, extract, synthesize, read-documentation, plus recall on every prompt. Point KG_ROOT at your corpus.",
+  "version": "2.0.0",
+  "skills": "./.claude/skills/",
+  "hooks": "./hooks/hooks.json"
+}

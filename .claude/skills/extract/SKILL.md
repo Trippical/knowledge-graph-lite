@@ -9,6 +9,9 @@ Extract owns NO capture rules. It decomposes sources into candidate facts,
 gates them for usefulness, and runs write-documentation once per survivor.
 Output goes to `inbox/` only; synthesize is the only path to `library/`.
 
+Scripts run as `python <script>.py` from the corpus root. Installed as the
+plugin, they live at `${CLAUDE_PLUGIN_ROOT}/` and the corpus is `$KG_ROOT`.
+
 ## Steps
 
 1. **Scope first.** Agree the sweep with the user: which paths or docs,
