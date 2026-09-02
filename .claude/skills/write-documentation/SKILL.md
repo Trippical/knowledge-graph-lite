@@ -45,7 +45,7 @@ related: <Entity, Entity — canonical names, no verb, optional>
 answers:
   - <3-5 questions this settles, phrased as people ask them>
 provenance:
-  - <repo:<name>/<path> for a file in another repo; a URL, or slack://<channel>/<YYYY-MM-DD>-<who> for a verbal fact; or a path inside this library. One entry per source, never an absolute path>
+  - <repo:<name>/<path> for a file in another repo; a URL, or slack://<channel>/<YYYY-MM-DD>-<who> for a verbal fact; or a path inside this library. One entry per source; a local absolute path works but gets flagged>
 provenance_rev: <commit SHA — only when the source is code>
 updated: <YYYY-MM-DD>
 ---
@@ -62,10 +62,11 @@ enumerations; provenance points at them.>
   Record where and how to get it. Rule constants a question turns on (a
   cost, a threshold, a tick count) are facts, not values — state them and
   pin the revision. Measured results, totals, and test outcomes are values.
-- **Provenance is portable.** `repo:<name>/<path>` for another
-  repository's file, a URL, or a library-relative path — never an
-  absolute path, which validate rejects. One entry per source, nothing
-  appended: line numbers and function names go in the body.
+- **Provenance should be portable.** Prefer `repo:<name>/<path>` for
+  another repository's file, a URL, or a library-relative path. A local
+  absolute path is allowed but validate flags it NEEDS WORK; fix it when
+  you can. One entry per source, nothing appended: line numbers and
+  function names go in the body.
 - **Code is evidence.** Capture policy, ownership, and why-facts; point
   `provenance:` at the code. A class's API surface never gets an entity;
   a mechanism with rules of its own (a spatial index's work cap, a

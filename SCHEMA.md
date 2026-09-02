@@ -17,7 +17,7 @@ vocabulary silently.
 | related        | no         | comma-separated canonical names — a plain link, no verb; anyone writes these |
 | relations      | synthesize | "Subject predicate Object" — added when the VERB matters              |
 | answers        | no         | 3-5 questions this file settles, phrased as people ask them           |
-| provenance     | inbox: yes | where the facts came from, one entry per source: `repo:<name>/<path>` for a file in another repository (forward slashes, relative to that repo's root); a URL (`https://…`, `slack://<channel>/<date>-<who>` for verbal facts, `uc://catalog.schema.table`); or a path relative to this library. Never an absolute path — it won't resolve on anyone else's machine |
+| provenance     | inbox: yes | where the facts came from, one entry per source: `repo:<name>/<path>` for a file in another repository (forward slashes, relative to that repo's root); a URL (`https://…`, `slack://<channel>/<date>-<who>` for verbal facts, `uc://catalog.schema.table`); or a path relative to this library. A local absolute path is accepted but flagged NEEDS WORK, since it won't resolve on anyone else's machine |
 | provenance_rev | code: yes  | commit SHA when the source is code                                    |
 | updated        | yes        | ISO date                                                              |
 

@@ -136,7 +136,9 @@ paragraph in the full corpus.
 
 2026-09-02, provenance made portable: entries are `repo:<name>/<path>`
 (another repository, forward slashes, relative to its root), a URL, or a
-library-relative path. Absolute paths are a validate ERROR. 137 entries
+library-relative path. Absolute paths are accepted but flagged NEEDS WORK
+(a warning, not an error — softened the same day; the forms are a
+recommendation, not a gate). 137 entries
 across v2 migrated; the full corpus migrated too (491 entries). Existence
 is checked only for library-relative paths.
 

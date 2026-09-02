@@ -89,12 +89,12 @@ def check_format(d, types, preds, errors, warnings, require_provenance=False):
             continue  # URL / URI — never checked
         if src.startswith("repo:"):
             if not re.match(r"^repo:[\w.-]+/\S+$", src):
-                errors.append(f"{f}: provenance '{src}' — repo form is repo:<name>/<path>")
+                warnings.append(f"{f}: provenance '{src}' — repo form is repo:<name>/<path>")
             continue  # another repository — not checked from here
         if re.match(r"^[A-Za-z]:[\\/]|^[\\/]", src):
-            errors.append(
-                f"{f}: provenance '{src}' is an absolute path — not portable; "
-                f"use repo:<name>/<path> or a URL"
+            warnings.append(
+                f"{f}: provenance '{src}' is a local absolute path — NEEDS WORK: "
+                f"it won't resolve on another machine; prefer repo:<name>/<path> or a URL"
             )
         elif not (ROOT / src).exists():
             warnings.append(f"{f}: provenance path '{src}' does not exist in this library")
