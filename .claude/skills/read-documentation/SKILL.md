@@ -14,8 +14,13 @@ about content, not structure.
    `[UNVERIFIED — inbox]` are recent captures — usable, cite with the
    caveat. If inbox contradicts library, answer from library and flag it.
 3. Multi-hop: `related:` lines are plain links (open the file for the how);
-   `edge:` lines carry direction and meaning. Look the target name up in
-   registry.tsv — don't grep the corpus, common words hit everywhere.
+   `edge:` lines carry direction and meaning. A `part_of` edge from a
+   scoped variant (`Last 4 (Acme)`) to its general entity means
+   inheritance: answer from the variant where it speaks and from the
+   general entity for everything else; a scope with no variant is answered
+   by the general entity. Look the target name up in registry.tsv (entity,
+   type, file, aliases, ref) — don't grep the corpus, common words hit
+   everywhere.
    Edges tagged `[staging]` point at a not-yet-promoted inbox entity;
    `[unresolved]` edges are broken — don't traverse, report them.
 4. Answer citing `file § section`. Check `updated:` and `provenance:` — a

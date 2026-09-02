@@ -24,8 +24,12 @@ def render() -> tuple:
             lines.append(f"- [{d['file']}]({d['file']}) — {d['entity']} ({d['type']}){al}")
         lines.append("")
     index_text = "\n".join(lines)
+    def ref(d):  # SCHEMA § Bindings: first provenance entry, if it is a URI
+        p = d["provenance"]
+        return p[0] if p and "://" in p[0] else ""
+
     registry_text = "".join(
-        f"{d['entity']}\t{d['type']}\t{d['file']}\t{'|'.join(d['aliases'])}\n"
+        f"{d['entity']}\t{d['type']}\t{d['file']}\t{'|'.join(d['aliases'])}\t{ref(d)}\n"
         for d in lib
     )
     edge_rows = []

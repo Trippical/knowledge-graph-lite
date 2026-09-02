@@ -56,8 +56,11 @@ what). Direction matters; the definition here is normative.
 - is_a — "X is_a Y": X is a kind of Y
 - part_of — "X part_of Y": X is a component or attribute of Y. Also the membership verb: a hero's skill, a mode's mechanic, a phase of a loop
 - requires — "X requires Y": X cannot exist or complete without Y
-- receives — "X receives Y": Y is produced or paid out as part of X
+- receives — "X receives Y": Y is delivered or paid out to X — a client receives a report, a redemption receives a reward
 - references — "X references Y": X cites or depends on information in Y
+- owned_by — "X owned_by Y": role Y is accountable for X
+- produces — "X produces Y": running X creates or refreshes Y (a pipeline and its table)
+- consumes — "X consumes Y": X reads Y as an input
 - applies_to — "X applies_to Y": rules or policy X govern Y
 - constrained_by — "X constrained_by Y": Y limits or caps X
 - approved_by — "X approved_by Y": role Y grants approval for X
@@ -70,3 +73,17 @@ what). Direction matters; the definition here is normative.
 Directory under library/ = domain. Entity names are unique across the whole
 library. When two domains need the same word, qualify the name ("Bank
 Offer") and keep the bare word as an alias in ONE file only.
+
+A scoped variant — `<Thing> (<Client>)` — lives in the scope's folder (a
+client's variant in that client's directory) and links `part_of` to the
+general entity in its home domain. A scope with no material difference gets
+no variant; the general entity is its answer.
+
+## Bindings
+
+An entity that denotes a system object (a table, a dashboard, a document)
+lists that object's URI as its FIRST provenance entry:
+`uc://catalog.schema.table`, `https://…`. Its inputs are not provenance;
+they are `requires` or `consumes` edges to their own entities.
+`build_index.py` exports that first URI as the `ref` column of
+registry.tsv, so SQL can join the graph to the catalog.

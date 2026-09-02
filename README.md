@@ -21,7 +21,7 @@ DB can read the same files later.
     .claude/settings.json  recall.py wired as a UserPromptSubmit hook
     kglib.py           shared parser
     validate.py        lint (--format one file, --dupe a name, or full)
-    build_index.py     regenerates INDEX.md, registry.tsv, edges.tsv (never hand-edit)
+    build_index.py     regenerates INDEX.md, registry.tsv (entity/type/file/aliases/ref), edges.tsv — never hand-edit
     search.py          ranked search over names, aliases, answers (pull path)
     recall.py          seed entities + walk edges.tsv (push path, hook)
 

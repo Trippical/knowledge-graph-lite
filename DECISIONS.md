@@ -142,6 +142,15 @@ recommendation, not a gate). 137 entries
 across v2 migrated; the full corpus migrated too (491 entries). Existence
 is checked only for library-relative paths.
 
+2026-09-02, reporting-domain prep (owner's calls): predicates `owned_by`,
+`produces`, `consumes` added; `receives` redefined as "Y is delivered or
+paid out to X" so a client receives a report (no separate delivered_to).
+Spoke placement (client's folder, `part_of` hub) and the inheritance
+reading rule written down. Bindings: an entity that denotes a system
+object puts its URI first in provenance; registry.tsv gains a `ref`
+column from it. `ref:` as a header key stays out. Dry-run projects are
+kept locally, not deleted.
+
 Still open, deliberately (add when a real capture needs it): a `triggers`
 predicate, a sequencing predicate (Draft → Shop → Muster can only be
 prose), and which rule wins when the edge's subject file isn't the file

@@ -1,11 +1,11 @@
-Advertiser	CONCEPT	library/advertisers/advertiser.md	Client|Merchant
-Approval Authority	POLICY	library/ops/approval-authority.md	sign-off|approvals|escalation path
-Campaign Owner	ROLE	library/ops/campaign-owner.md	
-Cap Override	PROCESS	library/ops/cap-override.md	
-Clawback Dispute	PROCESS	library/ops/clawback-dispute.md	clawback
-Manual Adjustment	PROCESS	library/ops/manual-adjustment.md	
-Ops Manager	ROLE	library/ops/ops-manager.md	
-Support Lead	ROLE	library/ops/support-lead.md	
-VP Finance	ROLE	library/ops/vp-finance.md	Finance Director
-Publisher	CONCEPT	library/publishers/publisher.md	FI|Bank Partner
-Glossary	DOCUMENT	library/shared/glossary.md	terminology|definitions
+Advertiser	CONCEPT	library/advertisers/advertiser.md	Client|Merchant	
+Approval Authority	POLICY	library/ops/approval-authority.md	sign-off|approvals|escalation path	
+Campaign Owner	ROLE	library/ops/campaign-owner.md		
+Cap Override	PROCESS	library/ops/cap-override.md		
+Clawback Dispute	PROCESS	library/ops/clawback-dispute.md	clawback	
+Manual Adjustment	PROCESS	library/ops/manual-adjustment.md		
+Ops Manager	ROLE	library/ops/ops-manager.md		
+Support Lead	ROLE	library/ops/support-lead.md		
+VP Finance	ROLE	library/ops/vp-finance.md	Finance Director	
+Publisher	CONCEPT	library/publishers/publisher.md	FI|Bank Partner	
+Glossary	DOCUMENT	library/shared/glossary.md	terminology|definitions	
