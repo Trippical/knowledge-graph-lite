@@ -37,8 +37,9 @@ live at `${CLAUDE_PLUGIN_ROOT}/` and the corpus is `$KG_ROOT`.
      of a general entity is its OWN entity, not a merge — and two such
      siblings are not duplicates of each other. Promote it with
      `part_of` → the general entity (the default verb for a scoped
-     instance) and `related:` → the scope it belongs to, and put what
-     differs in its body.
+     instance); the link to the scope becomes `<Scope> receives <Variant>`
+     in the scope's own file, so the variant carries no plain link back.
+     Put what differs in its body.
    - Keep one provenance entry per source so "says who?" stays answerable.
 3. **Connect.** Upgrade `related:` names to predicated `relations:` where
    the VERB matters (approval, delegation, requirement, supersession);

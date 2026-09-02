@@ -36,7 +36,9 @@ plugin, they live at `${CLAUDE_PLUGIN_ROOT}/` and the corpus is `$KG_ROOT`.
       the gate runs. Note it as a candidate for a later wave.
    1. *Key term* — the source DEFINES a domain term → capture. "Capture"
       means its own file when the term carries facts of its own; a
-      one-paragraph term becomes a `##` section of its parent.
+      one-paragraph term becomes a `##` section of its parent. A scope's
+      version of a general thing that the source says does not differ is
+      not a candidate at all — log it as "no variant", mint nothing.
    2. *Question-first (hard gate)* — write the `answers:` line BEFORE
       capturing, phrased as a person would ask it. Can't write one → drop.
    3. *Cost of ignorance (tiebreaker)* — borderline? Keep only if not

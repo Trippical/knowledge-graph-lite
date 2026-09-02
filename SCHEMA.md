@@ -83,7 +83,10 @@ no variant; the general entity is its answer.
 
 An entity that denotes a system object (a table, a dashboard, a document)
 lists that object's URI as its FIRST provenance entry:
-`uc://catalog.schema.table`, `https://…`. Its inputs are not provenance;
-they are `requires` or `consumes` edges to their own entities.
+`uc://catalog.schema.table`, `https://…`. A REPORT binds to the table or
+dashboard it writes, not to the email or file it is delivered as; a
+variant with no object of its own has no binding and inherits the
+general report's. Inputs are not provenance; they are `requires` or
+`consumes` edges to their own entities.
 `build_index.py` exports that first URI as the `ref` column of
 registry.tsv, so SQL can join the graph to the catalog.

@@ -151,6 +151,23 @@ object puts its URI first in provenance; registry.tsv gains a `ref`
 column from it. `ref:` as a header key stays out. Dry-run projects are
 kept locally, not deleted.
 
+2026-09-02, variant path exercised for the first time
+(`../knowledge_graph_dryrun_reports/`: 3 authored source docs, 2 reports ×
+2 clients; Sonnet extract, Opus synthesize). Result: 2 hubs in reporting/,
+1 variant per client in the client's folder, the 2 "nothing differs"
+pairs correctly produced no variant, `part_of` hub + `<Client> receives
+<Variant>`, `scoped_family()` exempted siblings, recall from the client
+reaches variant and hub, and the inheritance rule answered "what columns
+does Acme get" from both files. validate 0/0. Fixes: extract names the
+"no variant" outcome; synthesize's variant exception now says the scope
+link is `receives` in the scope's file (not a plain `related:`); Bindings
+says a REPORT binds to the table it writes, not its deliverable.
+
+Plugin: the repo doubles as a Claude Code plugin (`.claude-plugin/
+plugin.json` points at `.claude/skills`; `hooks/hooks.json`; scripts
+resolve the corpus from `KG_ROOT`). `claude --plugin-dir <clone> plugin
+details knowledge-graph` lists 5 skills + 1 hook, ~424 always-on tokens.
+
 Still open, deliberately (add when a real capture needs it): a `triggers`
 predicate, a sequencing predicate (Draft → Shop → Muster can only be
 prose), and which rule wins when the edge's subject file isn't the file
