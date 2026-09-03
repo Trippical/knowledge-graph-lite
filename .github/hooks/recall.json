@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "hooks": {
+    "userPromptSubmitted": [
+      {
+        "type": "command",
+        "bash": "python recall.py --hook > .recall-latest.md",
+        "powershell": "python recall.py --hook | Out-File -Encoding utf8 .recall-latest.md",
+        "timeoutSec": 15
+      }
+    ]
+  }
+}

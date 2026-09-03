@@ -54,9 +54,10 @@ extract and write-documentation on Sonnet.
 Code, GitHub Copilot CLI, and OpenCode all discover the skills in
 `.claude/skills/` natively, and all three read `AGENTS.md` at the root,
 which tells an agent what the corpus is and how to run the scripts. Claude
-Code also gets the recall hook from `.claude/settings.json`; in other
-tools the agent runs `python recall.py` itself before answering, as
-AGENTS.md instructs. `.github/copilot-instructions.md` points Copilot's
+Code also gets the recall hook from `.claude/settings.json`; Copilot CLI
+gets `.github/hooks/recall.json`, which writes the recall to
+`.recall-latest.md` for the agent to read; in other tools the agent runs
+`python recall.py` itself before answering, as AGENTS.md instructs. `.github/copilot-instructions.md` points Copilot's
 other surfaces at the same file.
 
 **As a plugin.** Install this repo as a Claude Code plugin and point it at

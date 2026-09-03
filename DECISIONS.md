@@ -177,8 +177,10 @@ hook, the script commands, the four rules that matter) and a five-line
 `${CLAUDE_PLUGIN_ROOT}` line in each skill is harmless elsewhere.
 Checked, not built: Copilot CLI hooks (`.github/hooks/*.json`,
 `userPromptSubmitted`) exist but the reference says command hooks "have
-their output dropped, including modifiedPrompt" — only SDK hooks can
-inject, so no recall hook for Copilot. OpenCode plugins
+their output dropped, including modifiedPrompt" — so the Copilot hook
+(`.github/hooks/recall.json`, added at the owner's request) writes the
+recall to `.recall-latest.md` (gitignored) and AGENTS.md says to read it.
+Same stdin shape as Claude Code's hook, so recall.py is unchanged. OpenCode plugins
 (`.opencode/plugins/`) have a `chat.message` hook that can prepend
 parts, but injection visibility is a known open issue; left as manual
 recall until it's documented as stable.

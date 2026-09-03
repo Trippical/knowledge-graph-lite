@@ -21,10 +21,11 @@ file for the task at hand before starting.
 
 ## Before answering a domain question
 
-Claude Code injects graph context automatically through a hook. Copilot
-CLI has a prompt hook too, but config-file hooks have their output
-dropped, so it can't feed the model; OpenCode's plugin hook for this is
-experimental. In those tools, run it yourself first:
+Claude Code injects graph context automatically through a hook. In
+Copilot CLI, the hook in `.github/hooks/recall.json` runs recall on your
+prompt and writes the result to `.recall-latest.md` (Copilot drops hook
+output, so it can't inject directly) — read that file first. In any
+other tool, run it yourself first:
 
     python recall.py "<the question>"      # graph walk, ~8 triples
     python search.py "<the question>"      # ranked search, both tiers
