@@ -175,6 +175,13 @@ the skills. Added root `AGENTS.md` (what the corpus is, the skill table,
 hook, the script commands, the four rules that matter) and a five-line
 `.github/copilot-instructions.md` that points at it. The
 `${CLAUDE_PLUGIN_ROOT}` line in each skill is harmless elsewhere.
+Checked, not built: Copilot CLI hooks (`.github/hooks/*.json`,
+`userPromptSubmitted`) exist but the reference says command hooks "have
+their output dropped, including modifiedPrompt" — only SDK hooks can
+inject, so no recall hook for Copilot. OpenCode plugins
+(`.opencode/plugins/`) have a `chat.message` hook that can prepend
+parts, but injection visibility is a known open issue; left as manual
+recall until it's documented as stable.
 
 Still open, deliberately (add when a real capture needs it): a `triggers`
 predicate, a sequencing predicate (Draft → Shop → Muster can only be
