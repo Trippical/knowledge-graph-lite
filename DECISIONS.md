@@ -168,6 +168,14 @@ plugin.json` points at `.claude/skills`; `hooks/hooks.json`; scripts
 resolve the corpus from `KG_ROOT`). `claude --plugin-dir <clone> plugin
 details knowledge-graph` lists 5 skills + 1 hook, ~424 always-on tokens.
 
+2026-09-03, other agents: GitHub Copilot CLI and OpenCode both discover
+`.claude/skills/` natively (also `.agents/skills/`), so no second copy of
+the skills. Added root `AGENTS.md` (what the corpus is, the skill table,
+"run recall.py yourself before answering" since only Claude Code has the
+hook, the script commands, the four rules that matter) and a five-line
+`.github/copilot-instructions.md` that points at it. The
+`${CLAUDE_PLUGIN_ROOT}` line in each skill is harmless elsewhere.
+
 Still open, deliberately (add when a real capture needs it): a `triggers`
 predicate, a sequencing predicate (Draft → Shop → Muster can only be
 prose), and which rule wins when the edge's subject file isn't the file

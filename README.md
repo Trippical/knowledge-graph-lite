@@ -14,6 +14,8 @@ DB can read the same files later.
 
     SCHEMA.md          types, predicates, header keys — the vocabulary
     README.md          this file
+    AGENTS.md          tool-neutral instructions (Copilot, OpenCode, Codex read it)
+    .github/copilot-instructions.md  pointer to AGENTS.md for Copilot's other surfaces
     DECISIONS.md       one-page log of durable decisions and what was cut
     library/<domain>/  canonical tier — validated, graph-complete
     inbox/<domain>/    staging tier — captures awaiting synthesis
@@ -46,11 +48,16 @@ DB can read the same files later.
 Model split that has held up in testing: scope and synthesize on Opus,
 extract and write-documentation on Sonnet.
 
-## Two ways to use it
+## Three ways to use it
 
-**As a project.** Clone the corpus repo and open it in Claude Code. The
-skills in `.claude/skills/` and the recall hook in `.claude/settings.json`
-are picked up automatically; scripts run from the root.
+**As a project, in any agent.** Clone the corpus repo and open it. Claude
+Code, GitHub Copilot CLI, and OpenCode all discover the skills in
+`.claude/skills/` natively, and all three read `AGENTS.md` at the root,
+which tells an agent what the corpus is and how to run the scripts. Claude
+Code also gets the recall hook from `.claude/settings.json`; in other
+tools the agent runs `python recall.py` itself before answering, as
+AGENTS.md instructs. `.github/copilot-instructions.md` points Copilot's
+other surfaces at the same file.
 
 **As a plugin.** Install this repo as a Claude Code plugin and point it at
 a corpus that lives elsewhere:
