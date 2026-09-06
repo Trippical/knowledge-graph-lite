@@ -185,6 +185,20 @@ Same stdin shape as Claude Code's hook, so recall.py is unchanged. OpenCode plug
 parts, but injection visibility is a known open issue; left as manual
 recall until it's documented as stable.
 
+2026-09-06, client feedback on search: literal token overlap missed
+well-documented entities when the question used a different word form
+("tiebreak" vs "ties broken"), and a common word in the question let an
+unrelated entity crowd out the right one; an agent then concluded the
+corpus had a gap it didn't have. Fix, generic, no aliases added: tokens
+on both sides are lowercased, hyphen-split, and lightly stemmed
+(kglib.stem — no -er/-es rules, they over-stem); a query token that is a
+closed compound of two known words is split; answers lines score
+partially on any shared distinctive token instead of only at Dice ≥ 0.4;
+and a third pass greps body text, labelled LOW CONFIDENCE, before
+declaring "no memory matches". Regression on the 133-entity corpus:
+the one primer that used to miss now passes. Semantic embeddings stay
+out until phrasing misses persist after this.
+
 Still open, deliberately (add when a real capture needs it): a `triggers`
 predicate, a sequencing predicate (Draft → Shop → Muster can only be
 prose), and which rule wins when the edge's subject file isn't the file

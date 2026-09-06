@@ -1,13 +1,20 @@
 """Two-tier ranked search over the library's frontmatter (the pull path).
 
+Tokens on both sides are lowercased, hyphen-split, and lightly stemmed
+(kglib.words), and a query token that is a closed compound of two known
+words is split ("tiebreak" -> tie + break), so word-form differences
+between a question and the stored phrasing don't zero the score.
+
 Scoring (per file, best-of not sum-of, so alias stuffing has no payoff):
   answers line   Dice overlap >= 0.4 -> up to ~190 (verbatim beats everything)
+                 else 10 per shared distinctive token (partial)
   entity match   40 + 30 per token (multi-word names beat bare stubs)
   alias match    30 + 25 per token
   inbox tier     total halved, hits tagged UNVERIFIED
 
 Pass 2 on miss: swap stem-matched question words for canonical entity names
-(deterministic order, library first, max 2 swaps). Then loud fail.
+(deterministic order, library first, max 2 swaps).
+Pass 3 on miss: body text, clearly labelled low confidence. Then loud fail.
 
 Edges: [staging] = endpoint only exists in inbox; [unresolved] = endpoint
 exists nowhere (broken — do not traverse).
@@ -19,32 +26,40 @@ import re
 import sys
 from pathlib import Path
 
-from kglib import STOP, corpus_root, load_docs, load_schema, split_relation, words
+from kglib import STOP, corpus_root, load_docs, load_schema, split_compound, split_relation, words
 
 ROOT = corpus_root(__file__)
 CAP = 15
+STOPS = {w for s in STOP for w in words(s)}
 
 
 def phrase_in(phrase: str, q: str) -> bool:
     return bool(re.search(rf"\b{re.escape(phrase.lower())}\b", q.lower()))
 
 
-def best_name(d: dict, question: str) -> tuple:
-    q_words = words(question) - STOP
+def query_tokens(question: str, vocab: set) -> set:
+    """Question tokens, minus stopwords, plus the halves of any compound."""
+    toks = words(question) - STOPS
+    for t in list(toks):
+        toks.update(split_compound(t, vocab))
+    return toks
+
+
+def best_name(d: dict, q_words: set, question: str) -> tuple:
     best, why = 0, None
     for kind, base, per, phrases in (
         ("entity", 40, 30, [d["entity"]]),
         ("alias", 30, 25, d["aliases"]),
     ):
         for ph in phrases:
-            if not ph or not (words(ph) - STOP):
+            if not ph or not (words(ph) - STOPS):
                 continue
             if phrase_in(ph, question):
                 pts = base + per * len(ph.split())
                 if pts > best:
                     best, why = pts, f"{kind} match: '{ph}'"
                 continue
-            hit = sorted(w for w in words(ph) - STOP if len(w) >= 4 and w in q_words)
+            hit = sorted(w for w in words(ph) - STOPS if len(w) >= 4 and w in q_words)
             if hit:
                 pts = 15 * len(hit)
                 if pts > best:
@@ -52,45 +67,49 @@ def best_name(d: dict, question: str) -> tuple:
     return best, why
 
 
-def best_answer(d: dict, question: str) -> tuple:
-    q_words = words(question) - STOP
+def best_answer(d: dict, q_words: set) -> tuple:
     best, why = 0, None
     for ans in d["answers"]:
-        a_words = words(ans) - STOP
+        a_words = words(ans) - STOPS
         if not a_words or not q_words:
             continue
         shared = a_words & q_words
+        if not shared:
+            continue
         dice = 2 * len(shared) / (len(a_words) + len(q_words))
         if dice >= 0.4:
             pts = int(150 * dice) + (40 if dice >= 0.8 else 0)
-            if pts > best:
-                best, why = (
-                    pts,
-                    f"answers: '{ans}' (overlap {dice:.2f}: {', '.join(sorted(shared))})",
-                )
+            label = f"answers: '{ans}' (overlap {dice:.2f}: {', '.join(sorted(shared))})"
+        else:
+            distinctive = sorted(w for w in shared if len(w) >= 3)
+            if not distinctive:
+                continue
+            pts = 10 * len(distinctive)
+            label = f"partial answers: '{ans}' via {', '.join(distinctive)}"
+        if pts > best:
+            best, why = pts, label
     return best, why
 
 
-def score(d: dict, question: str) -> tuple:
-    n_pts, n_why = best_name(d, question)
-    a_pts, a_why = best_answer(d, question)
+def score(d: dict, q_words: set, question: str) -> tuple:
+    n_pts, n_why = best_name(d, q_words, question)
+    a_pts, a_why = best_answer(d, q_words)
     pts = n_pts + a_pts
     if d["tier"] == "inbox":
         pts //= 2
     return pts, [w for w in (n_why, a_why) if w]
 
 
-def run(docs: list, question: str) -> list:
+def run(docs: list, q_words: set, question: str) -> list:
     hits = []
     for d in docs:
-        pts, why = score(d, question)
+        pts, why = score(d, q_words, question)
         if pts:
             hits.append((pts, d["file"], d, why))
     return [(p, d, w) for p, _, d, w in sorted(hits, key=lambda h: (-h[0], h[1]))]
 
 
-def expand(docs: list, question: str) -> tuple:
-    q_words = words(question)
+def expand(docs: list, q_words: set, question: str) -> tuple:
     cands = []
     for d in docs:
         vocab = {w for p in [d["entity"], *d["aliases"]] for w in words(p)}
@@ -106,8 +125,29 @@ def expand(docs: list, question: str) -> tuple:
             swaps[qw] = entity
     if not swaps:
         return [], {}
-    expanded = question + " " + " ".join(sorted(set(swaps.values())))
-    return run(docs, expanded), swaps
+    extra = set()
+    for e in swaps.values():
+        extra |= words(e)
+    return run(docs, q_words | extra, question + " " + " ".join(sorted(set(swaps.values())))), swaps
+
+
+def body_pass(docs: list, q_words: set) -> list:
+    """Low-confidence fallback: distinctive query tokens found in body text."""
+    hits = []
+    distinctive = {w for w in q_words if len(w) >= 4}
+    for d in docs:
+        if "path" not in d:
+            continue
+        try:
+            text = d["path"].read_text(encoding="utf-8")
+        except OSError:
+            continue
+        body = text.partition("\n---\n")[2]
+        shared = sorted(distinctive & words(body))
+        if len(shared) >= 2:
+            pts = 5 * len(shared)
+            hits.append((pts, d["file"], d, [f"body match (low confidence) via {', '.join(shared)}"]))
+    return [(p, d, w) for p, _, d, w in sorted(hits, key=lambda h: (-h[0], h[1]))]
 
 
 def main() -> None:
@@ -117,18 +157,26 @@ def main() -> None:
     _, preds = load_schema(ROOT)
     lib_entities = {d["entity"].lower() for d in docs if d["tier"] == "library"}
     all_entities = {d["entity"].lower() for d in docs if d["entity"]}
+    vocab = set()
+    for d in docs:
+        for p in [d["entity"], *d["aliases"], *d["answers"]]:
+            vocab |= words(p)
+    q_words = query_tokens(question, vocab)
 
-    hits, via = run(docs, question), "pass 1 (exact)"
+    hits, via = run(docs, q_words, question), "pass 1 (normalized tokens)"
     if not hits:
-        hits, swaps = expand(docs, question)
+        hits, swaps = expand(docs, q_words, question)
         if hits:
             via = "pass 2 (alias expansion: " + ", ".join(
                 f"{k} -> {v}" for k, v in sorted(swaps.items())
             ) + ")"
+    if not hits:
+        hits = body_pass(docs, q_words)
+        if hits:
+            via = "pass 3 (body text — LOW CONFIDENCE, open the file before relying on it)"
 
     if not hits:
-        tried = sorted(words(question) - STOP)
-        print(f"no memory matches — tried exact terms and alias expansion on: {', '.join(tried)}")
+        print(f"no memory matches — tried normalized terms, alias expansion, and body text on: {', '.join(sorted(q_words))}")
         print("if this should be answerable, record it with the write-documentation skill.")
         sys.exit(1)
 

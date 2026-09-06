@@ -19,8 +19,39 @@ STOP = {
 }
 
 
+_SUFFIXES = ("ations", "ation", "ings", "ing", "ies", "ed", "ly", "s")
+
+
+def stem(w: str) -> str:
+    """Light suffix stripping so word forms meet: ties/tie, deciding/decid,
+    priorities/priority, offers/offer. Deliberately crude — no -er/-es rules
+    (they turn offer into off); irregulars (broken/break) stay apart."""
+    for s in _SUFFIXES:
+        if w.endswith(s) and len(w) - len(s) >= 3:
+            if s == "s" and w.endswith("ss"):
+                return w
+            w = w[: -len(s)]
+            if s == "ies":
+                w += "y"
+            break
+    return w
+
+
 def words(text: str) -> set:
-    return set(re.findall(r"[a-z0-9£-]+", text.lower()))
+    """Lowercased, hyphen-split, stemmed tokens. 'tie-break' -> {tie, break}."""
+    return {stem(w) for w in re.findall(r"[a-z0-9£]+", text.lower())}
+
+
+def split_compound(token: str, vocab: set) -> tuple:
+    """'tiebreak' -> ('tie', 'break') when both halves are known words;
+    else ()."""
+    if token in vocab or len(token) < 6:
+        return ()
+    for i in range(3, len(token) - 2):
+        a, b = token[:i], token[i:]
+        if a in vocab and b in vocab:
+            return (a, b)
+    return ()
 
 
 def parse_header(path: Path, root: Path) -> dict:
