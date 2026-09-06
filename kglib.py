@@ -26,6 +26,8 @@ def stem(w: str) -> str:
     """Light suffix stripping so word forms meet: ties/tie, deciding/decid,
     priorities/priority, offers/offer. Deliberately crude — no -er/-es rules
     (they turn offer into off); irregulars (broken/break) stay apart."""
+    if w.endswith("es") and len(w) >= 5 and w[:-2].endswith(("s", "x", "z", "ch", "sh")):
+        return w[:-2]  # processes -> process, classes -> class
     for s in _SUFFIXES:
         if w.endswith(s) and len(w) - len(s) >= 3:
             if s == "s" and w.endswith("ss"):
